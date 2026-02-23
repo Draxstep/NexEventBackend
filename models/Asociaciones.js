@@ -1,11 +1,16 @@
 import sequelize from '../config/database.js';
 import Departamento from './Departamento.js';
 import Ciudad from './Ciudad.js';
+import Categoria from './Categoria.js';
+import Evento from './Evento.js';
 
+// ==========================================
+// Relación: Departamento <-> Ciudad
+// ==========================================
 Departamento.hasMany(Ciudad, {
   foreignKey: 'departamento_id',
   sourceKey: 'id',
-  onDelete: 'CASCADE'
+  onDelete: 'CASCADE' 
 });
 
 Ciudad.belongsTo(Departamento, {
@@ -13,8 +18,38 @@ Ciudad.belongsTo(Departamento, {
   targetKey: 'id' 
 });
 
+// ==========================================
+// Relación: Ciudad <-> Evento
+// ==========================================
+Ciudad.hasMany(Evento, {
+  foreignKey: 'ciudad_id',
+  sourceKey: 'id',
+  onDelete: 'RESTRICT' 
+});
+
+Evento.belongsTo(Ciudad, {
+  foreignKey: 'ciudad_id',
+  targetKey: 'id'
+});
+
+// ==========================================
+// Relación: Categoria <-> Evento
+// ==========================================
+Categoria.hasMany(Evento, {
+  foreignKey: 'categoria_id',
+  sourceKey: 'id',
+  onDelete: 'RESTRICT' 
+});
+
+Evento.belongsTo(Categoria, {
+  foreignKey: 'categoria_id',
+  targetKey: 'id'
+});
+
 export {
   sequelize, 
   Departamento,
   Ciudad,
+  Categoria,
+  Evento
 };
