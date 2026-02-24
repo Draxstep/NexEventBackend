@@ -12,6 +12,15 @@ export const crearEvento = asyncHandler(async (req, res) => {
     });
 });
 
-//Aca iria metodo para obtener eventos
+export const obtenerEventos = asyncHandler(async (req, res) => {
+    const eventos = await eventoService.obtenerEventos();
+    res.json(eventos);
+});
+
+export const obtenerEventoPorId = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const evento = await eventoService.obtenerEventoPorId(id);
+    res.json(evento);
+});
 
 //Aca iria metodo para actualizar un evento
