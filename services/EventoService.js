@@ -15,6 +15,24 @@ class EventoService {
     }
 
     //Aca iria metodo para actualizar evento
+    async actualizarEvento(id, datosEvento) {
+        try {
+            const evento = await Evento.findByPk(id);
+            if (!evento) {
+                const error = new Error("Evento no encontrado.");
+                error.statusCode = 404;
+                throw error;
+            }
+            return await evento.update(datosEvento);
+        } catch (error) {
+            if (error.name === 'SequelizeForeignKeyConstraintError') {
+                const customError = new Error("Inconsistencia de datos: La categoría o la ciudad seleccionada no existe.");
+                customError.statusCode = 400;
+                throw customError;
+            }
+            throw error;
+        }
+    }
 
     async obtenerEventos (){
         return await Evento.findAll({

@@ -2,11 +2,8 @@ import eventoService from "../services/EventoService.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 export const crearEvento = asyncHandler(async (req, res) => {
-
     const datosNuevos = req.body;
-
     const nuevoEvento = await eventoService.crear(datosNuevos);
-    
     res.status(201).json({
         message: "Evento agregado correctamente."
     });
@@ -23,4 +20,12 @@ export const obtenerEventoPorId = asyncHandler(async (req, res) => {
     res.json(evento);
 });
 
-//Aca iria metodo para actualizar un evento
+export const actualizarEvento = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const datosActualizados = req.body; 
+    const eventoActualizado = await eventoService.actualizarEvento(id, datosActualizados);
+    res.status(201).json({
+        message: "Evento actualizado correctamente.",
+        evento: eventoActualizado
+    });
+});
