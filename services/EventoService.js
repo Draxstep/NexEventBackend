@@ -1,4 +1,4 @@
-import { Evento } from "../models/Asociaciones.js";
+import { Evento, Categoria, Ciudad, Departamento } from "../models/Asociaciones.js";
 
 class EventoService {
     async crear(datosEvento) {
@@ -17,19 +17,45 @@ class EventoService {
     //Aca iria metodo para actualizar evento
 
     async obtenerEventos (){
-        return await Event.findAll({
-            include: [{
-                attributes: ['id', 'nombre', 'fecha', 'lugar'],
-                include: [{ model: Categoria, as: 'categoria', attributes: ['id', 'nombre'] }],
-                 order: [['fecha', 'ASC']]
-            }]
-        })
+        return await Evento.findAll({
+
+            attributes: ['id', 'nombre', 'fecha', 'lugar', 'imagen_url'], 
+            order: [['fecha', 'ASC']], 
+            
+            include: [
+                { 
+                    model: Categoria, 
+                    attributes: ['id', 'nombre'] 
+                },
+                {
+                    model: Ciudad,
+                    attributes: ['nombre'] 
+                }
+            ]
+        });
     };
 
     async obtenerEventoPorId (id) {
-        const event = await Event.findByPk(id, {
-            exclude: ['categoria_id'],
-            include: [{ model: Categoria, as: 'categoria', attributes: ['id', 'nombre'] }]
+        const event = await Evento.findByPk(id, {
+            attributes: { 
+                exclude: ['categoria_id', 'ciudad_id'] 
+            },
+            include: [
+                { 
+                    model: Categoria, 
+                    attributes: ['id', 'nombre'] 
+                },
+                {
+                    model: Ciudad,
+                    attributes: ['id', 'nombre'],
+                    include: [
+                        { 
+                            model: Departamento, 
+                            attributes: ['id', 'nombre'] 
+                        }
+                    ]
+                }
+            ]
         });
 
         if (!event) {
