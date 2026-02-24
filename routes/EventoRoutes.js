@@ -1,12 +1,14 @@
 import express from "express";
 import {
-    crearEvento
+    crearEvento,
+    obtenerEventos
 } from "../controllers/EventoController.js";
 import { validarCreacionEvento } from "../middlewares/EventoValidator.js";
 
 const router = express.Router();
 
-//Aca iria la ruta para el get de obtener eventos
+router.get("/", obtenerEventos);
+router.get("/:id", obtenerEventos); 
 router.post("/", validarCreacionEvento, crearEvento);
 //Aca iria la ruta para el put de actualizar eventos
 
