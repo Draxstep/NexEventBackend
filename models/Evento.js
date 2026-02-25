@@ -46,6 +46,11 @@ const Evento = sequelize.define('Evento', {
   ciudad_id: {
     type: DataTypes.INTEGER,
     allowNull: false,
+  },
+  estado: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: true, 
   }
 }, {
   tableName: 'eventos',

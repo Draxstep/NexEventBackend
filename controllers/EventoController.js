@@ -29,3 +29,17 @@ export const actualizarEvento = asyncHandler(async (req, res) => {
         evento: eventoActualizado
     });
 });
+
+export const obtenerEventosActivos = asyncHandler(async (req, res) => {
+    const eventos = await eventoService.obtenerEventosActivos();
+    res.json(eventos);
+});
+
+export const cambiarEstadoEvento = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const eventoActualizado = await eventoService.cambiarEstado(id);
+    res.json({
+        message: eventoActualizado.estado ? "Evento activado." : "Evento inactivado.",
+        evento: eventoActualizado
+    });
+});

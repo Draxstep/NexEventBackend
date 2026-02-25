@@ -84,6 +84,29 @@ class EventoService {
 
         return event;
     };
+
+    async obtenerEventosActivos() {
+        return await Evento.findAll({
+            where: { estado: true }, 
+            attributes: ['id', 'nombre', 'fecha', 'lugar', 'imagen_url'], 
+            order: [['fecha', 'ASC']], 
+            include: [
+                { model: Categoria, attributes: ['id', 'nombre'] },
+                { model: Ciudad, attributes: ['nombre'] }
+            ]
+        });
+    }
+
+    async cambiarEstado(id) {
+        const evento = await Evento.findByPk(id);
+        if (!evento) {
+            const error = new Error("Evento no encontrado.");
+            error.statusCode = 404;
+            throw error;
+        }
+
+        return await evento.update({ estado: !evento.estado }); 
+    }
 }
 
 export default new EventoService();
