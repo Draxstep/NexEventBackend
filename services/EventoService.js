@@ -34,42 +34,50 @@ class EventoService {
         }
     }
 
-    async obtenerEventos (){
-        return await Evento.findAll({
-
-            attributes: ['id', 'nombre', 'fecha', 'lugar', 'imagen_url'], 
-            order: [['fecha', 'ASC']], 
-            
+    async obtenerEventos() {
+        const eventos = await Evento.findAll({
+            attributes: ['id', 'nombre', 'fecha', 'lugar', 'imagen_url', 'estado'],
+            order: [['fecha', 'ASC']],
             include: [
-                { 
-                    model: Categoria, 
-                    attributes: ['id', 'nombre'] 
+                {
+                    model: Categoria,
+                    attributes: ['id', 'nombre']
                 },
                 {
                     model: Ciudad,
-                    attributes: ['nombre'] 
+                    attributes: ['nombre']
                 }
             ]
         });
-    };
 
-    async obtenerEventoPorId (id) {
+        return eventos.map(e => {
+            const json = e.toJSON();
+
+            if (json.Categorium) {
+                json.Categoria = json.Categorium;
+                delete json.Categorium;
+            }
+
+            return json;
+        });
+    }
+    async obtenerEventoPorId(id) {
         const event = await Evento.findByPk(id, {
-            attributes: { 
-                exclude: ['categoria_id', 'ciudad_id'] 
+            attributes: {
+                exclude: ['categoria_id', 'ciudad_id']
             },
             include: [
-                { 
-                    model: Categoria, 
-                    attributes: ['id', 'nombre'] 
+                {
+                    model: Categoria,
+                    attributes: ['id', 'nombre']
                 },
                 {
                     model: Ciudad,
                     attributes: ['id', 'nombre'],
                     include: [
-                        { 
-                            model: Departamento, 
-                            attributes: ['id', 'nombre'] 
+                        {
+                            model: Departamento,
+                            attributes: ['id', 'nombre']
                         }
                     ]
                 }
@@ -87,9 +95,9 @@ class EventoService {
 
     async obtenerEventosActivos() {
         return await Evento.findAll({
-            where: { estado: true }, 
-            attributes: ['id', 'nombre', 'fecha', 'lugar', 'imagen_url', 'valor', 'hora'], 
-            order: [['fecha', 'ASC']], 
+            where: { estado: true },
+            attributes: ['id', 'nombre', 'fecha', 'lugar', 'imagen_url', 'valor', 'hora'],
+            order: [['fecha', 'ASC']],
             include: [
                 { model: Categoria, attributes: ['id', 'nombre'] },
                 { model: Ciudad, attributes: ['nombre'] }
@@ -105,7 +113,7 @@ class EventoService {
             throw error;
         }
 
-        return await evento.update({ estado: !evento.estado }); 
+        return await evento.update({ estado: !evento.estado });
     }
 }
 
