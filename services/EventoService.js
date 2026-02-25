@@ -88,7 +88,7 @@ class EventoService {
     async obtenerEventosActivos() {
         return await Evento.findAll({
             where: { estado: true }, 
-            attributes: ['id', 'nombre', 'fecha', 'lugar', 'imagen_url'], 
+            attributes: ['id', 'nombre', 'fecha', 'lugar', 'imagen_url', 'valor', 'hora'], 
             order: [['fecha', 'ASC']], 
             include: [
                 { model: Categoria, attributes: ['id', 'nombre'] },
