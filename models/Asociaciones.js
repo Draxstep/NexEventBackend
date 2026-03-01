@@ -43,6 +43,7 @@ Categoria.hasMany(Evento, {
 });
 
 Evento.belongsTo(Categoria, {
+  as: 'Categoria',
   foreignKey: 'categoria_id',
   targetKey: 'id'
 });
