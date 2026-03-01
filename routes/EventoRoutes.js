@@ -16,7 +16,7 @@ router.get("/", obtenerEventos);
 router.get("/activos", obtenerEventosActivos); 
 router.post("/", uploadImagen.single('imagen'), validarCreacionEvento, crearEvento);
 router.get("/:id", obtenerEventoPorId); 
-router.put("/:id", validarCreacionEvento, actualizarEvento);
+router.put("/:id", uploadImagen.single('imagen'), validarCreacionEvento, actualizarEvento);
 router.patch("/:id/estado", cambiarEstadoEvento); 
 
 export default router;
