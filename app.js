@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import routerPrincipal from "./routes/index.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
+import webHookRouter from "./routes/WebhookRoutes.js";
 
 const app = express();
 
@@ -22,6 +23,8 @@ app.use(cors({
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
 }));
+
+app.use("/api/webhook", webHookRouter);
 
 app.use(express.json());
 
