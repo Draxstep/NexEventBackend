@@ -1,11 +1,19 @@
 import eventoService from "../services/EventoService.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import ImgDbService from "../services/ImgDbService.js";
 
 export const crearEvento = asyncHandler(async (req, res) => {
+    
     const datosNuevos = req.body;
+    if (req.file){
+        const urlImage = await ImgDbService.subirImagen(req.file.buffer);
+        datosNuevos.imagen_url = urlImage;
+    }
+
     const nuevoEvento = await eventoService.crear(datosNuevos);
     res.status(201).json({
-        message: "Evento agregado correctamente."
+        message: "Evento agregado correctamente.",
+        evento: nuevoEvento
     });
 });
 
