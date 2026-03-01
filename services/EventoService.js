@@ -41,6 +41,7 @@ class EventoService {
             include: [
                 {
                     model: Categoria,
+                    as: 'Categoria',
                     attributes: ['id', 'nombre']
                 },
                 {
@@ -50,16 +51,7 @@ class EventoService {
             ]
         });
 
-        return eventos.map(e => {
-            const json = e.toJSON();
-
-            if (json.Categorium) {
-                json.Categoria = json.Categorium;
-                delete json.Categorium;
-            }
-
-            return json;
-        });
+        return eventos;
     }
     async obtenerEventoPorId(id) {
         const event = await Evento.findByPk(id, {
@@ -69,6 +61,7 @@ class EventoService {
             include: [
                 {
                     model: Categoria,
+                    as: 'Categoria',
                     attributes: ['id', 'nombre']
                 },
                 {
@@ -99,7 +92,7 @@ class EventoService {
             attributes: ['id', 'nombre', 'fecha', 'lugar', 'imagen_url', 'valor', 'hora'],
             order: [['fecha', 'ASC']],
             include: [
-                { model: Categoria, attributes: ['id', 'nombre'] },
+                { model: Categoria, as: 'Categoria', attributes: ['id', 'nombre'] },
                 { model: Ciudad, attributes: ['nombre'] }
             ]
         });
