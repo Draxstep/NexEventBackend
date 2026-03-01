@@ -7,6 +7,10 @@ const EventoInteres = sequelize.define('EventoInteres', {
         primaryKey: true,
         autoIncrement: true,
     },
+    usuario_id: {
+        type: DataTypes.STRING(255), 
+        allowNull: false,
+    },
     evento_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -19,6 +23,13 @@ const EventoInteres = sequelize.define('EventoInteres', {
 }, {
     tableName: 'evento_interes',
     timestamps: false,
+    indexes: [
+        {
+            unique: true,
+            fields: ['evento_id', 'usuario_id'],
+            name: 'uk_evento_usuario'
+        }
+    ]
 });
 
 export default EventoInteres;
