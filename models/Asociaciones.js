@@ -4,6 +4,7 @@ import Ciudad from './Ciudad.js';
 import Categoria from './Categoria.js';
 import Evento from './Evento.js';
 import EventoInteres from './EventoInteres.js';
+import Usuario from './Usuario.js';
 
 // ==========================================
 // Relación: Departamento <-> Ciudad
@@ -62,11 +63,40 @@ EventoInteres.belongsTo(Evento, {
     targetKey: 'id'
 });
 
+// ==========================================
+// Relación: Evento <-> EventoInteres
+// ==========================================
+Evento.hasMany(EventoInteres, {
+  foreignKey: 'evento_id',
+  sourceKey: 'id',
+  onDelete: 'CASCADE'
+});
+
+EventoInteres.belongsTo(Evento, {
+  foreignKey: 'evento_id',
+  targetKey: 'id'
+});
+
+// ==========================================
+// Relación: Usuario <-> EventoInteres
+// ==========================================
+Usuario.hasMany(EventoInteres, {
+  foreignKey: 'usuario_id',
+  sourceKey: 'id',
+  onDelete: 'CASCADE' // Si se borra el usuario de Clerk/BD, se borran sus "me interesa"
+});
+
+EventoInteres.belongsTo(Usuario, {
+  foreignKey: 'usuario_id',
+  targetKey: 'id'
+});
+
 export {
   sequelize, 
   Departamento,
   Ciudad,
   Categoria,
   Evento,
-  EventoInteres
+  EventoInteres,
+  Usuario
 };
