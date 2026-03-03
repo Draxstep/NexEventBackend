@@ -34,6 +34,18 @@ class EventoInteresService {
 
         return !!existe;
     }
+
+    async eliminarInteres(evento_id, usuario_id) {
+        if (!this.verificarInteres(evento_id, usuario_id)) {
+            throw new Error("El interés no existe.");
+        }
+        return await EventoInteres.destroy({
+            where: {
+                evento_id,
+                usuario_id
+            }
+        });
+    }
 }
 
 export default new EventoInteresService();

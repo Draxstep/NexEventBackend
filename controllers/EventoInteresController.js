@@ -2,7 +2,6 @@ import eventoInteresService from '../services/EventoInteresService.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 
 export const registrarInteres = asyncHandler(async (req, res) => {
-    console.log("BODY:", req.body);
     const { evento_id, usuario_id } = req.body || {};
 
     if (!evento_id || !usuario_id) {
@@ -29,7 +28,6 @@ export const obtenerConteoIntereses = asyncHandler(async (req, res) => {
 });
 
 export const isUserInterested = asyncHandler(async (req, res) => {
-    console.log("BODY:", req.params);
     const { evento_id, usuario_id } = req.params || {};
     
     const isInterested = await eventoInteresService.verificarInteres(evento_id, usuario_id);
@@ -37,5 +35,15 @@ export const isUserInterested = asyncHandler(async (req, res) => {
     res.json({
         evento_id: parseInt(evento_id),
         interesado: isInterested
+    });
+});
+
+export const eliminarInteres = asyncHandler(async (req, res) => {
+    const { evento_id, usuario_id } = req.params || {};
+
+    await eventoInteresService.eliminarInteres(evento_id, usuario_id);
+    
+    res.json({
+        message: "Interés eliminado exitosamente."
     });
 });
