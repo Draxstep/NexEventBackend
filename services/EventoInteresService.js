@@ -46,6 +46,18 @@ class EventoInteresService {
             }
         });
     }
+
+    async obtenerEventosInteresadosPorUsuario(usuario_id) {
+        const intereses = await EventoInteres.findAll({
+            where: { usuario_id },
+            include: {
+                model: Evento,
+                attributes: ['id', 'nombre', 'fecha', 'lugar', 'imagen_url']
+            }
+        });
+
+        return intereses.map(i => i.Evento);
+    }
 }
 
 export default new EventoInteresService();
