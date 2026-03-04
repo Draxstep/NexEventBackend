@@ -47,3 +47,10 @@ export const eliminarInteres = asyncHandler(async (req, res) => {
         message: "Interés eliminado exitosamente."
     });
 });
+
+export const obtenerEventosInteresadosPorUsuario = asyncHandler(async (req, res) => {
+    const { usuario_id } = req.params;  
+    const eventos = await eventoInteresService.obtenerEventosInteresadosPorUsuario(usuario_id);
+
+    res.json(eventos);
+});
