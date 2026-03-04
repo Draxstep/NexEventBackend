@@ -30,9 +30,16 @@ export const obtenerEventoPorId = asyncHandler(async (req, res) => {
 
 export const actualizarEvento = asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const datosActualizados = req.body; 
+    const datosActualizados = req.body;
+
+    if (req.file) {
+        const urlImage = await ImgDbService.subirImagen(req.file.buffer);
+        datosActualizados.imagen_url = urlImage;
+    }
+
     const eventoActualizado = await eventoService.actualizarEvento(id, datosActualizados);
-    res.status(201).json({
+    
+    res.status(200).json({ 
         message: "Evento actualizado correctamente.",
         evento: eventoActualizado
     });
