@@ -1,4 +1,5 @@
 import { EventoInteres, Evento } from '../models/Asociaciones.js';
+import Ciudad from '../models/Ciudad.js';
 
 class EventoInteresService {
 
@@ -52,11 +53,22 @@ class EventoInteresService {
             where: { usuario_id },
             include: {
                 model: Evento,
-                attributes: ['id', 'nombre', 'fecha', 'lugar', 'imagen_url']
+                attributes: ['id', 'nombre', 'fecha', 'hora', 'lugar', 'imagen_url', 'valor'],
+                include: {
+                    model: Ciudad,
+                    attributes: ['nombre']
+                }
             }
         });
 
-        return intereses.map(i => i.Evento);
+        return intereses.map(i => {
+            const evento = i.Evento.toJSON();
+
+            return {
+                ...evento,
+                ciudad: evento.Ciudad?.nombre || 'Sin ciudad'
+            };
+        });
     }
 }
 
