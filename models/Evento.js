@@ -35,9 +35,6 @@ const Evento = sequelize.define('Evento', {
     type: DataTypes.TEXT,
     allowNull: true,
   },
-  valor: {
-    type: DataTypes.DECIMAL(10, 2), 
-  },
   fecha_creacion: {
     type: DataTypes.DATE, 
     defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
