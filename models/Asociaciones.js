@@ -99,6 +99,17 @@ EventoTipoEntrada.belongsTo(TipoEntrada, {
 // ==========================================
 // Relación: Compra <-> Boleto
 // ==========================================
+Usuario.hasMany(Compra, {
+  foreignKey: 'usuario_id',
+  sourceKey: 'id',
+  onDelete: 'RESTRICT'
+});
+
+Compra.belongsTo(Usuario, {
+  foreignKey: 'usuario_id',
+  targetKey: 'id'
+});
+
 Compra.hasMany(Boleto, {
   foreignKey: 'compra_id',
   sourceKey: 'id',

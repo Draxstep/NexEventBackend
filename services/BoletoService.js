@@ -2,8 +2,13 @@ import { randomUUID } from "crypto";
 import { Boleto, Compra, EventoTipoEntrada, TipoEntrada, Evento } from "../models/Asociaciones.js";
 
 class BoletoService {
-    async generarBoletos(compra_id, detallesCompra) {
-        const compra = await Compra.findByPk(compra_id, { attributes: ['id'] });
+    async generarBoletos(compra_id, detallesCompra, options = {}) {
+        const { transaction } = options;
+
+        const compra = await Compra.findByPk(compra_id, {
+            attributes: ['id'],
+            transaction
+        });
         if (!compra) {
             const error = new Error("Compra no encontrada.");
             error.code = 'COMPRA_NO_ENCONTRADA';
@@ -19,7 +24,8 @@ class BoletoService {
         const eventoTipoIds = detallesCompra.map(d => Number(d.evento_tipo_id));
         const eventoTipos = await EventoTipoEntrada.findAll({
             where: { id: eventoTipoIds },
-            attributes: ['id']
+            attributes: ['id'],
+            transaction
         });
 
         if (eventoTipos.length !== new Set(eventoTipoIds).size) {
@@ -50,7 +56,7 @@ class BoletoService {
             }
         }
 
-        return await Boleto.bulkCreate(boletosParaInsertar);
+        return await Boleto.bulkCreate(boletosParaInsertar, { transaction });
     }
 
     async validarAcceso(codigo_qr_individual) {

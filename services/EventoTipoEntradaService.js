@@ -46,21 +46,11 @@ class EventoTipoEntradaService {
             const actualesPorTipo = new Map(actuales.map(item => [item.tipo_entrada_id, item]));
             const configuracionPorTipo = new Map(configuracion.map(item => [Number(item.tipo_entrada_id), item]));
 
-            for (const [tipoId, itemActual] of actualesPorTipo.entries()) {
-                const nuevoItem = configuracionPorTipo.get(tipoId);
-
-                if (!nuevoItem) {
-                    if (itemActual.cantidad_vendida > 0) {
-                        const error = new Error("No se puede eliminar un tipo con entradas vendidas.");
-                        error.code = 'NO_PUEDE_ELIMINAR_TIPO_CON_VENTAS';
-                        throw error;
-                    }
-
-                    await itemActual.destroy({ transaction });
-                    continue;
-                }
-
+            for (const [tipoId, nuevoItem] of configuracionPorTipo.entries()) {
+                const itemActual = actualesPorTipo.get(tipoId);
                 const nuevaCapacidad = Number(nuevoItem.capacidad_total);
+
+                if (itemActual) {
                 if (nuevaCapacidad < itemActual.cantidad_vendida) {
                     const error = new Error("La capacidad total no puede ser menor que la cantidad vendida.");
                     error.code = 'CAPACIDAD_MENOR_VENDIDA';
@@ -71,10 +61,6 @@ class EventoTipoEntradaService {
                     precio: Number(nuevoItem.precio),
                     capacidad_total: nuevaCapacidad
                 }, { transaction });
-            }
-
-            for (const [tipoId, nuevoItem] of configuracionPorTipo.entries()) {
-                if (actualesPorTipo.has(tipoId)) {
                     continue;
                 }
 
