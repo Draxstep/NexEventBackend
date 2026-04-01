@@ -5,6 +5,8 @@ import Categoria from './Categoria.js';
 import TipoEntrada from './TipoEntrada.js';
 import Evento from './Evento.js';
 import EventoTipoEntrada from './EventoTipoEntrada.js';
+import Compra from './Compra.js';
+import Boleto from './Boleto.js';
 import EventoInteres from './EventoInteres.js';
 import Usuario from './Usuario.js';
 
@@ -95,6 +97,35 @@ EventoTipoEntrada.belongsTo(TipoEntrada, {
 });
 
 // ==========================================
+// Relación: Compra <-> Boleto
+// ==========================================
+Compra.hasMany(Boleto, {
+  foreignKey: 'compra_id',
+  sourceKey: 'id',
+  onDelete: 'CASCADE'
+});
+
+Boleto.belongsTo(Compra, {
+  foreignKey: 'compra_id',
+  targetKey: 'id'
+});
+
+// ==========================================
+// Relación: EventoTipoEntrada <-> Boleto
+// ==========================================
+EventoTipoEntrada.hasMany(Boleto, {
+  foreignKey: 'evento_tipo_id',
+  sourceKey: 'id',
+  onDelete: 'RESTRICT'
+});
+
+Boleto.belongsTo(EventoTipoEntrada, {
+  as: 'EventoTipoEntrada',
+  foreignKey: 'evento_tipo_id',
+  targetKey: 'id'
+});
+
+// ==========================================
 // Relación: Evento <-> EventoInteres
 // ==========================================
 Evento.hasMany(EventoInteres, {
@@ -130,6 +161,8 @@ export {
   TipoEntrada,
   Evento,
   EventoTipoEntrada,
+  Compra,
+  Boleto,
   EventoInteres,
   Usuario
 };
