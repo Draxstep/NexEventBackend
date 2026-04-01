@@ -2,6 +2,7 @@ import sequelize from '../config/database.js';
 import Departamento from './Departamento.js';
 import Ciudad from './Ciudad.js';
 import Categoria from './Categoria.js';
+import TipoEntrada from './TipoEntrada.js';
 import Evento from './Evento.js';
 import EventoInteres from './EventoInteres.js';
 import Usuario from './Usuario.js';
@@ -96,6 +97,7 @@ export {
   Departamento,
   Ciudad,
   Categoria,
+  TipoEntrada,
   Evento,
   EventoInteres,
   Usuario
