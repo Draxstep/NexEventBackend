@@ -3,6 +3,7 @@ import departamentosRoutes from "./DepartamentoRoutes.js";
 import categoriasRoutes from "./CategoriaRoutes.js";
 import eventosRoutes from "./EventoRoutes.js";
 import eventoInteresRoutes from "./EventoInteresRoutes.js";
+import eventoTipoEntradaRoutes from "./EventoTipoEntradaRoutes.js";
 
 const router = express.Router();
 
@@ -10,5 +11,6 @@ router.use("/departamentos", departamentosRoutes);
 router.use("/categorias", categoriasRoutes);
 router.use("/eventos", eventosRoutes);
 router.use("/intereses", eventoInteresRoutes);
+router.use("/evento-tipos-entrada", eventoTipoEntradaRoutes);
 
 export default router;
