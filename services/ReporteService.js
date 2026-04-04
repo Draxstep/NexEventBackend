@@ -52,6 +52,39 @@ class ReporteService {
             usuarios_registrados: usuariosRegistrados
         };
     }
+
+    async getEventsByPopularity() {
+        return await Evento.findAll({
+            where: { estado: true }, 
+            attributes: [
+                'id', 'nombre', 'fecha', 'lugar', 'imagen_url', 'hora',
+                [sequelize.fn('COUNT', sequelize.col('EventoInteres.id')), 'total_intereses']
+            ],
+            include: [
+                {
+                    model: EventoInteres,
+                    attributes: [], 
+                    required: false 
+                },
+                { 
+                    model: Categoria, 
+                    as: 'Categoria', 
+                    attributes: ['id', 'nombre'] 
+                },
+                { 
+                    model: Ciudad, 
+                    attributes: ['nombre'] 
+                }
+            ],
+            group: [
+                'Evento.id', 'Categoria.id', 'Ciudad.id'
+            ],
+            order: [
+                [sequelize.col('total_intereses'), 'DESC'], 
+                ['fecha', 'ASC'] 
+            ]
+        });
+    }
 }
 
 export default new ReporteService();
