@@ -53,7 +53,7 @@ class EventoInteresService {
             where: { usuario_id },
             include: {
                 model: Evento,
-                attributes: ['id', 'nombre', 'fecha', 'hora', 'lugar', 'imagen_url', 'valor'],
+                attributes: ['id', 'nombre', 'fecha', 'hora', 'lugar', 'imagen_url'],
                 include: {
                     model: Ciudad,
                     attributes: ['nombre']
