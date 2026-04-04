@@ -1,4 +1,4 @@
-import { Compra, Evento, EventoTipoEntrada, TipoEntrada, Usuario, sequelize } from "../models/Asociaciones.js";
+import { Compra, Evento, EventoTipoEntrada, TipoEntrada, Usuario, sequelize, EventoInteres, Categoria, Ciudad} from "../models/Asociaciones.js";
 
 class ReporteService {
     async obtenerReporteVentasPorEvento(evento_id) {
