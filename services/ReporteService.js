@@ -52,6 +52,42 @@ class ReporteService {
             usuarios_registrados: usuariosRegistrados
         };
     }
+
+    async getTopMostSoldEvents() {
+        const eventos = await Evento.findAll({
+            where: { estado: true },
+            attributes: ['id', 'nombre', 'fecha', 'lugar', 'imagen_url', 'hora'],
+            include: [
+                {
+                    model: Categoria,
+                    as: 'Categoria',
+                    attributes: ['id', 'nombre']
+                },
+                {
+                    model: Ciudad,
+                    attributes: ['nombre']
+                },
+                {
+                    model: EventoTipoEntrada,
+                    attributes: ['cantidad_vendida', 'precio'],
+                    required: false
+                }
+            ],
+            order: [
+                ['total_vendido', 'DESC'], 
+                ['fecha', 'ASC']
+            ],
+            limit: 3
+        });
+
+        if (!eventos || eventos.length === 0) {
+            const error = new Error("No se encontraron eventos disponibles.");
+            error.code = 'EVENTOS_NO_ENCONTRADOS';
+            throw error;
+        }
+
+        return eventos;
+    }
 }
 
 export default new ReporteService();
