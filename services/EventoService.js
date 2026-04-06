@@ -1,4 +1,4 @@
-import { Evento, Categoria, Ciudad, Departamento } from "../models/Asociaciones.js";
+import { Evento, Categoria, Ciudad, Departamento, EventoTipoEntrada } from "../models/Asociaciones.js";
 
 class EventoService {
     async crear(datosEvento) {
@@ -47,12 +47,27 @@ class EventoService {
                 {
                     model: Ciudad,
                     attributes: ['nombre']
+                },
+                {
+                    model: EventoTipoEntrada,
+                    attributes: ['capacidad_total', 'cantidad_vendida']
                 }
             ]
         });
 
-        return eventos;
+        return eventos.map(evento => {
+            const data = evento.toJSON();
+            
+            const estado_entradas = this.calculateStateTickets(data.EventoTipoEntradas);
+            delete data.EventoTipoEntradas;
+
+            return {
+                ...data,
+                estado_entradas 
+            };
+        });
     }
+    
     async obtenerEventoPorId(id) {
         const event = await Evento.findByPk(id, {
             attributes: {
@@ -107,6 +122,23 @@ class EventoService {
         }
 
         return await evento.update({ estado: !evento.estado });
+    }
+
+    calculateStateTickets (tickets) {
+        if (!tickets || tickets.length === 0) {
+            return 'UNCONFIGURED';
+        }
+
+        const totalCapacity = tickets.reduce((sum, t) => sum + Number(t.capacidad_total), 0);
+        const totalSold = tickets.reduce((sum, t) => sum + Number(t.cantidad_vendida), 0);
+
+        if (totalCapacity === 0) {
+            return 'UNCONFIGURED';
+        } else if (totalSold >= totalCapacity) {
+            return 'SOLD_OUT';
+        } else {
+            return 'AVAILABLE';
+        }
     }
 }
 
