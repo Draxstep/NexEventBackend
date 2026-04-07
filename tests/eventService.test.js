@@ -67,4 +67,16 @@ describe('EventoService - createEvent', () => {
 
     expect(Evento.create).not.toHaveBeenCalled();
   });
+
+    describe('EventoService - updateEvent', () => {
+        it('should throw 404 if the event to update does not exist', async () => {
+            Evento.findByPk.mockResolvedValue(null);
+
+            await expect(EventoService.actualizarEvento(999, { nombre: 'Nuevo' }))
+                .rejects.toMatchObject({
+                    message: "Evento no encontrado.",
+                    statusCode: 404
+                });
+        });
+    });
 });
