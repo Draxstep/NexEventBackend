@@ -1,0 +1,83 @@
+import { describe, it, expect, vi, afterEach } from 'vitest';
+import EventoService from '../services/EventoService.js';
+import { Evento } from '../models/Asociaciones.js';
+
+vi.mock('../models/Asociaciones.js', () => ({
+  Evento: {
+    create: vi.fn(),
+    findByPk: vi.fn()
+  }
+}));
+
+describe('EventoService - createEvent', () => {
+  
+  afterEach(() => {
+    vi.resetAllMocks();
+  });
+
+  const getDate = (daysAhead = 1) => {
+    const date = new Date();
+    date.setDate(date.getDate() + daysAhead);
+    return date.toISOString().split('T')[0];
+  };
+
+    const getPastDate = () => {
+        const date = new Date();
+        date.setDate(date.getDate() - 5);
+        return date.toISOString().split('T')[0];
+    };
+
+  const baseEventData = {
+    nombre: 'Tech Conference 2024',
+    lugar: 'Convention Center',
+    categoria_id: 1,
+    ciudad_id: 5
+  };
+
+  it('should successfully create an event when data and date are valid (Happy Path)', async () => {
+    const validData = { ...baseEventData, fecha: getDate(10) };
+    const mockCreatedEvent = { id: 99, ...validData };
+    
+    Evento.create.mockResolvedValue(mockCreatedEvent);
+
+    const result = await EventoService.crear(validData);
+
+    expect(result).toEqual(mockCreatedEvent);
+    expect(Evento.create).toHaveBeenCalledWith(validData);
+  });
+    it('should throw a 400 error if the category or city does not exist (Foreign Key Error)', async () => {
+        const validData = { ...baseEventData, fecha: getDate(5) };
+
+        const seqError = new Error("ForeignKeyConstraintError");
+        seqError.name = 'SequelizeForeignKeyConstraintError';
+        Evento.create.mockRejectedValue(seqError);
+
+        await expect(EventoService.crear(validData)).rejects.toMatchObject({
+            message: "Inconsistencia de datos: La categoría o la ciudad seleccionada no existe.",
+            statusCode: 400
+        });
+    });
+
+    it('should throw a 400 error if the event date is not in the future (Business Logic)', async () => {
+    const invalidData = { ...baseEventData, fecha: getPastDate() };
+    
+    await expect(EventoService.crear(invalidData)).rejects.toMatchObject({
+      message: "La fecha del evento debe ser posterior al día de hoy.",
+      statusCode: 400
+    });
+
+    expect(Evento.create).not.toHaveBeenCalled();
+  });
+
+    describe('EventoService - updateEvent', () => {
+        it('should throw 404 if the event to update does not exist', async () => {
+            Evento.findByPk.mockResolvedValue(null);
+
+            await expect(EventoService.actualizarEvento(999, { nombre: 'Nuevo' }))
+                .rejects.toMatchObject({
+                    message: "Evento no encontrado.",
+                    statusCode: 404
+                });
+        });
+    });
+});
