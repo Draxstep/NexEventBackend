@@ -5,6 +5,7 @@ import { Evento } from '../models/Asociaciones.js';
 vi.mock('../models/Asociaciones.js', () => ({
   Evento: {
     create: vi.fn(),
+    findByPk: vi.fn()
   }
 }));
 
