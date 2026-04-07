@@ -37,7 +37,7 @@ class EventoInteresService {
     }
 
     async eliminarInteres(evento_id, usuario_id) {
-        if (!this.verificarInteres(evento_id, usuario_id)) {
+        if (!await this.verificarInteres(evento_id, usuario_id)) {
             throw new Error("El interés no existe.");
         }
         return await EventoInteres.destroy({
@@ -53,7 +53,7 @@ class EventoInteresService {
             where: { usuario_id },
             include: {
                 model: Evento,
-                attributes: ['id', 'nombre', 'fecha', 'hora', 'lugar', 'imagen_url', 'valor'],
+                attributes: ['id', 'nombre', 'fecha', 'hora', 'lugar', 'imagen_url'],
                 include: {
                     model: Ciudad,
                     attributes: ['nombre']
