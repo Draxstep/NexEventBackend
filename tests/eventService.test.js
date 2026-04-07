@@ -38,4 +38,17 @@ describe('EventoService - createEvent', () => {
     expect(result).toEqual(mockCreatedEvent);
     expect(Evento.create).toHaveBeenCalledWith(validData);
   });
+    it('should throw a 400 error if the category or city does not exist (Foreign Key Error)', async () => {
+        const validData = { ...baseEventData, fecha: getDate(5) };
+
+        const seqError = new Error("ForeignKeyConstraintError");
+        seqError.name = 'SequelizeForeignKeyConstraintError';
+        Evento.create.mockRejectedValue(seqError);
+
+        await expect(EventoService.crear(validData)).rejects.toMatchObject({
+            message: "Inconsistencia de datos: La categoría o la ciudad seleccionada no existe.",
+            statusCode: 400
+        });
+    });
+
 });
