@@ -5,6 +5,7 @@ import { Evento } from '../models/Asociaciones.js';
 vi.mock('../models/Asociaciones.js', () => ({
   Evento: {
     create: vi.fn(),
+    findByPk: vi.fn()
   }
 }));
 
@@ -67,4 +68,16 @@ describe('EventoService - createEvent', () => {
 
     expect(Evento.create).not.toHaveBeenCalled();
   });
+
+    describe('EventoService - updateEvent', () => {
+        it('should throw 400 if updating to a past date', async () => {
+            const pastDate = '2020-01-01';
+
+            await expect(EventoService.actualizarEvento(1, { fecha: pastDate }))
+                .rejects.toMatchObject({
+                    message: "La fecha del evento debe ser posterior al día de hoy.",
+                    statusCode: 400
+                });
+        });
+    });
 });
