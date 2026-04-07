@@ -11,7 +11,7 @@ vi.mock('../models/Asociaciones.js', () => ({
 describe('EventoService - createEvent', () => {
   
   afterEach(() => {
-    vi.clearAllMocks();
+    vi.resetAllMocks();
   });
 
   const getDate = (daysAhead = 1) => {
@@ -19,6 +19,12 @@ describe('EventoService - createEvent', () => {
     date.setDate(date.getDate() + daysAhead);
     return date.toISOString().split('T')[0];
   };
+
+    const getPastDate = () => {
+        const date = new Date();
+        date.setDate(date.getDate() - 5);
+        return date.toISOString().split('T')[0];
+    };
 
   const baseEventData = {
     nombre: 'Tech Conference 2024',
@@ -51,4 +57,14 @@ describe('EventoService - createEvent', () => {
         });
     });
 
+    it('should throw a 400 error if the event date is not in the future (Business Logic)', async () => {
+    const invalidData = { ...baseEventData, fecha: getPastDate() };
+    
+    await expect(EventoService.crear(invalidData)).rejects.toMatchObject({
+      message: "La fecha del evento debe ser posterior al día de hoy.",
+      statusCode: 400
+    });
+
+    expect(Evento.create).not.toHaveBeenCalled();
+  });
 });
