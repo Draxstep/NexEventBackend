@@ -43,7 +43,7 @@ describe('EventoService - createEvent', () => {
 
         const seqError = new Error("ForeignKeyConstraintError");
         seqError.name = 'SequelizeForeignKeyConstraintError';
-        Evento.create.mockRejectedValue(seqError);
+        Evento.create.mockResolvedValue({ id: 99, ...validData });
 
         await expect(EventoService.crear(validData)).rejects.toMatchObject({
             message: "Inconsistencia de datos: La categoría o la ciudad seleccionada no existe.",
