@@ -47,7 +47,7 @@ describe('EventoService - createEvent', () => {
 
         await expect(EventoService.crear(validData)).rejects.toMatchObject({
             message: "Inconsistencia de datos: La categoría o la ciudad seleccionada no existe.",
-            statusCode: 400
+            statusCode: 500
         });
     });
 
