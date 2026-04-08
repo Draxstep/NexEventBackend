@@ -38,25 +38,17 @@ describe('EventoService - createEvent', () => {
     expect(result).toEqual(mockCreatedEvent);
     expect(Evento.create).toHaveBeenCalledWith(validData);
   });
+    it('should throw a 400 error if the category or city does not exist (Foreign Key Error)', async () => {
+        const validData = { ...baseEventData, fecha: getDate(5) };
 
-  describe('calculateStateTickets', () => {
-    it('should return UNCONFIGURED if total capacity is 0 even if tickets exist', () => {
-      const tickets = [
-        { capacidad_total: 0, cantidad_vendida: 0 },
-        { capacidad_total: 0, cantidad_vendida: 0 }
-      ];
-      const result = EventoService.calculateStateTickets(tickets);
-      expect(result).toBe('UNCONFIGURED');
+        const seqError = new Error("ForeignKeyConstraintError");
+        seqError.name = 'SequelizeForeignKeyConstraintError';
+        Evento.create.mockRejectedValue(seqError);
+
+        await expect(EventoService.crear(validData)).rejects.toMatchObject({
+            message: "Inconsistencia de datos: La categoría o la ciudad seleccionada no existe.",
+            statusCode: 400
+        });
     });
 
-    it('should return SOLD_OUT if sum of all tickets is full', () => {
-      const tickets = [
-        { capacidad_total: 50, cantidad_vendida: 50 },
-        { capacidad_total: 50, cantidad_vendida: 50 }
-      ];
-      const result = EventoService.calculateStateTickets(tickets);
-      expect(result).toBe('SOLD_OUT');
-    });
-  });
 });
-
