@@ -23,7 +23,7 @@ class ImgDbService {
             
         } catch (error) {
             console.error("Error en ImgbbService:", error);
-            throw new Error("No se pudo procesar la imagen externa.");
+            throw new Error("No se pudo procesar la imagen externa.", { cause: error });
         }
     }
 }
