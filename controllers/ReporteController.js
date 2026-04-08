@@ -28,3 +28,8 @@ export const obtenerMetricasGenerales = asyncHandler(async (req, res) => {
     const metricas = await reporteService.obtenerMetricasGenerales();
     res.json(metricas);
 });
+
+export const getTopMostSoldEvents = asyncHandler(async(req, res) => {
+    const events = await reporteService.getTopMostSoldEvents();
+    res.json(events);
+})
