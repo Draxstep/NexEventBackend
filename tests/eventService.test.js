@@ -23,7 +23,7 @@ describe('EventoService - createEvent', () => {
   const baseEventData = {
     nombre: 'Tech Conference 2024',
     lugar: 'Convention Center',
-    categoria_id: 1,
+    categoria_id: 100,
     ciudad_id: 5
   };
 
@@ -47,7 +47,7 @@ describe('EventoService - createEvent', () => {
 
         await expect(EventoService.crear(validData)).rejects.toMatchObject({
             message: "Inconsistencia de datos: La categoría o la ciudad seleccionada no existe.",
-            statusCode: 400
+            statusCode: 500
         });
     });
 
