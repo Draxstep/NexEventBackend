@@ -50,11 +50,30 @@ export const obtenerEventosActivos = asyncHandler(async (req, res) => {
     res.json(eventos);
 });
 
+export const obtenerEventosCancelados = asyncHandler(async (req, res) => {
+    const eventos = await eventoService.obtenerEventosCancelados();
+    res.json(eventos);
+});
+
+export const obtenerEventosCompletados = asyncHandler(async (req, res) => {
+    const eventos = await eventoService.obtenerEventosCompletados();
+    res.json(eventos);
+});
+
+export const completarEventosPasados = asyncHandler(async (req, res) => {
+    const registrosActualizados = await eventoService.completarEventosPasados();
+    res.json({
+        message: `Se actualizaron ${registrosActualizados} evento(s) a Completado.`,
+        registros_actualizados: registrosActualizados
+    });
+});
+
 export const cambiarEstadoEvento = asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const eventoActualizado = await eventoService.cambiarEstado(id);
+    const { estado } = req.body;
+    const eventoActualizado = await eventoService.cambiarEstado(id, estado);
     res.json({
-        message: eventoActualizado.estado ? "Evento activado." : "Evento inactivado.",
+        message: `Estado del evento actualizado a ${eventoActualizado.estado}.`,
         evento: eventoActualizado
     });
 });
