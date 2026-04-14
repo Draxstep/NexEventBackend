@@ -1,3 +1,9 @@
+const ESTADOS_VALIDOS_EVENTO = ['Activo', 'Completado', 'Cancelado'];
+
+const validarEstadoEvento = (estado) => {
+    return typeof estado === 'string' && ESTADOS_VALIDOS_EVENTO.includes(estado.trim());
+};
+
 export const validarCreacionEvento = (req, res, next) => {
     const { nombre, fecha, lugar, hora, categoria_id, ciudad_id } = req.body;
 
@@ -31,5 +37,36 @@ export const validarCreacionEvento = (req, res, next) => {
         }
     }
 
+    if (req.body.estado !== undefined) {
+        if (!validarEstadoEvento(req.body.estado)) {
+            return res.status(400).json({
+                error: "Estado inválido",
+                details: "El estado debe ser uno de: Activo, Completado o Cancelado."
+            });
+        }
+        req.body.estado = req.body.estado.trim();
+    }
+
+    next();
+};
+
+export const validarCambioEstadoEvento = (req, res, next) => {
+    const { estado } = req.body;
+
+    if (estado === undefined) {
+        return res.status(400).json({
+            error: "Falta el estado",
+            details: "Debe enviar el campo 'estado' con valor Activo, Completado o Cancelado."
+        });
+    }
+
+    if (!validarEstadoEvento(estado)) {
+        return res.status(400).json({
+            error: "Estado inválido",
+            details: "El estado debe ser uno de: Activo, Completado o Cancelado."
+        });
+    }
+
+    req.body.estado = estado.trim();
     next();
 };

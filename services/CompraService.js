@@ -36,7 +36,7 @@ class CompraService {
 
         try {
             const evento = await Evento.findOne({
-                where: { id: evento_id, estado: true },
+                where: { id: evento_id, estado: 'Activo' },
                 attributes: ['id', 'nombre', 'estado'],
                 transaction,
                 lock: transaction.LOCK.UPDATE

@@ -2,7 +2,7 @@
 
 **Base URL:** `http://localhost:3000/api`
 
-**Fecha de generacion:** 1 de abril de 2026
+**Fecha de generacion:** 14 de abril de 2026
 
 ---
 
@@ -22,10 +22,15 @@
 5. [Eventos](#eventos)
    - [GET /api/eventos](#get-apieventos)
    - [GET /api/eventos/activos](#get-apieventosactivos)
-   - [POST /api/eventos](#post-apieventos)
-   - [GET /api/eventos/:id](#get-apieventosid)
-   - [PUT /api/eventos/:id](#put-apieventosid)
-   - [PATCH /api/eventos/:id/estado](#patch-apieventosidestado)
+
+- [GET /api/eventos/cancelados](#get-apieventoscancelados)
+- [GET /api/eventos/completados](#get-apieventoscompletados)
+- [POST /api/eventos](#post-apieventos)
+- [GET /api/eventos/:id](#get-apieventosid)
+- [PUT /api/eventos/:id](#put-apieventosid)
+- [PATCH /api/eventos/completar-pasados](#patch-apieventoscompletar-pasados)
+- [PATCH /api/eventos/:id/estado](#patch-apieventosidestado)
+
 6. [Configuracion de Entradas por Evento](#configuracion-de-entradas-por-evento)
    - [PUT /api/evento-tipos-entrada/:evento_id](#put-apievento-tipos-entradaevento_id)
    - [GET /api/evento-tipos-entrada/:evento_id/disponibilidad](#get-apievento-tipos-entradaevento_iddisponibilidad)
@@ -40,14 +45,20 @@
    - [POST /api/boletos/validar-acceso](#post-apiboletosvalidar-acceso)
    - [PATCH /api/boletos/:boleto_id/cancelar](#patch-apiboletosboleto_idcancelar)
 9. [Compras](#compras)
-  - [POST /api/compras](#post-apicompras)
-  - [GET /api/compras/usuario/:usuario_id/historial](#get-apicomprasusuariousuario_idhistorial)
-  - [GET /api/compras/:compra_id](#get-apicomprascompra_id)
+
+- [POST /api/compras](#post-apicompras)
+- [GET /api/compras/usuario/:usuario_id/historial](#get-apicomprasusuariousuario_idhistorial)
+- [GET /api/compras/:compra_id](#get-apicomprascompra_id)
+
 10. [Reportes](#reportes)
-  - [GET /api/reportes/metricas-generales](#get-apireportesmetricas-generales)
-  - [GET /api/reportes/ventas/evento/:evento_id](#get-apireportesventaseventoevento_id)
+
+- [GET /api/reportes/metricas-generales](#get-apireportesmetricas-generales)
+- [GET /api/reportes/ventas/evento/:evento_id](#get-apireportesventaseventoevento_id)
+
 11. [Webhooks](#webhooks)
-   - [POST /api/webhook/clerk](#post-apiwebhookclerk)
+
+- [POST /api/webhook/clerk](#post-apiwebhookclerk)
+
 12. [Manejo Global de Errores](#manejo-global-de-errores)
 
 ---
@@ -106,6 +117,7 @@
 ```
 
 **Errores comunes:**
+
 - `400` datos invalidos.
 - `409` categoria duplicada.
 - `500` error interno.
@@ -157,6 +169,7 @@
 ```
 
 **Errores comunes:**
+
 - `400` datos invalidos.
 - `409` departamento duplicado.
 - `500` error interno.
@@ -232,6 +245,7 @@
 ```
 
 **Errores comunes:**
+
 - `400` datos invalidos.
 - `409` tipo de entrada duplicado.
 - `500` error interno.
@@ -244,7 +258,7 @@
 
 ### GET /api/eventos
 
-**Descripcion:** Obtiene todos los eventos (activos e inactivos), ordenados por fecha.
+**Descripcion:** Obtiene todos los eventos ordenados por fecha.
 
 **Exito (200):**
 
@@ -256,7 +270,8 @@
     "fecha": "2026-05-15",
     "lugar": "Centro de Convenciones",
     "imagen_url": "https://ejemplo.com/imagen.jpg",
-    "estado": true,
+    "estado": "Activo",
+    "estado_entradas": "AVAILABLE",
     "Categoria": {
       "id": 1,
       "nombre": "Conferencia"
@@ -274,9 +289,29 @@
 
 ### GET /api/eventos/activos
 
-**Descripcion:** Obtiene eventos activos (`estado = true`).
+**Descripcion:** Obtiene eventos activos (`estado = 'Activo'`).
 
 **Exito (200):** Arreglo con estructura similar a `GET /api/eventos`.
+
+**Errores comunes:** `500`.
+
+---
+
+### GET /api/eventos/cancelados
+
+**Descripcion:** Obtiene eventos cancelados (`estado = 'Cancelado'`).
+
+**Exito (200):** Arreglo con estructura similar a `GET /api/eventos/activos`.
+
+**Errores comunes:** `500`.
+
+---
+
+### GET /api/eventos/completados
+
+**Descripcion:** Obtiene eventos completados (`estado = 'Completado'`).
+
+**Exito (200):** Arreglo con estructura similar a `GET /api/eventos/activos`.
 
 **Errores comunes:** `500`.
 
@@ -287,6 +322,7 @@
 **Descripcion:** Crea un evento.
 
 **Notas de envio:**
+
 - Soporta `multipart/form-data` (campo de archivo `imagen`) por el middleware de upload.
 - Tambien puede recibir `imagen_url` en body si no se sube archivo.
 
@@ -318,6 +354,7 @@
 ```
 
 **Errores comunes:**
+
 - `400` validaciones de campos.
 - `400` inconsistencias de FK (categoria/ciudad inexistente).
 - `500` error interno.
@@ -331,6 +368,7 @@
 **Exito (200):** objeto del evento.
 
 **Errores comunes:**
+
 - `404` evento no encontrado.
 - `500` error interno.
 
@@ -355,6 +393,7 @@
 ```
 
 **Errores comunes:**
+
 - `400` validaciones de campos.
 - `400` inconsistencias de FK.
 - `404` evento no encontrado.
@@ -364,22 +403,53 @@
 
 ### PATCH /api/eventos/:id/estado
 
-**Descripcion:** Alterna el estado del evento entre activo/inactivo.
+**Descripcion:** Actualiza el estado del evento a un valor permitido.
+
+**Body:**
+
+```json
+{
+  "estado": "Completado"
+}
+```
+
+Valores permitidos para `estado`: `Activo`, `Completado`, `Cancelado`.
 
 **Exito (200):**
 
 ```json
 {
-  "message": "Evento activado.",
+  "message": "Estado del evento actualizado a Completado.",
   "evento": {
     "id": 1,
-    "estado": true
+    "estado": "Completado"
   }
 }
 ```
 
 **Errores comunes:**
+
+- `400` estado faltante o invalido.
 - `404` evento no encontrado.
+- `500` error interno.
+
+---
+
+### PATCH /api/eventos/completar-pasados
+
+**Descripcion:** Marca como `Completado` todos los eventos cuya `fecha` es menor a la fecha actual (`CURRENT_DATE`) y que aun no estan completados.
+
+**Exito (200):**
+
+```json
+{
+  "message": "Se actualizaron 3 evento(s) a Completado.",
+  "registros_actualizados": 3
+}
+```
+
+**Errores comunes:**
+
 - `500` error interno.
 
 ---
@@ -393,6 +463,7 @@
 **Descripcion:** Configura tipos de entrada para un evento.
 
 **Comportamiento actual:**
+
 - Crea o actualiza los tipos enviados en el payload.
 - Si un tipo existente no viene en el payload, se elimina.
 - Si se intenta eliminar un tipo con entradas vendidas, la operacion falla.
@@ -438,6 +509,7 @@
 ```
 
 **Errores comunes:**
+
 - `400` evento_id invalido.
 - `400` payload invalido.
 - `400` tipo de entrada inexistente.
@@ -454,6 +526,7 @@
 **Exito (200):** arreglo de configuraciones con `asientos_disponibles`.
 
 **Errores comunes:**
+
 - `400` evento_id invalido.
 - `404` evento no encontrado.
 - `500` error interno.
@@ -491,6 +564,7 @@
 ```
 
 **Errores comunes:**
+
 - `400` falta evento_id o usuario_id.
 - `404` evento no existe.
 - `500` error interno.
@@ -613,6 +687,7 @@
 ```
 
 **Errores comunes:**
+
 - `400` payload invalido.
 - `400` tipo de evento inexistente.
 - `404` compra no encontrada.
@@ -653,6 +728,7 @@
 ```
 
 **Errores comunes:**
+
 - `400` codigo qr invalido.
 - `400` entrada invalida o ya utilizada.
 - `404` boleto no encontrado.
@@ -677,6 +753,7 @@
 ```
 
 **Errores comunes:**
+
 - `400` boleto_id invalido.
 - `400` no se puede cancelar un boleto usado.
 - `404` boleto no encontrado.
@@ -733,6 +810,7 @@
 ```
 
 **Errores comunes:**
+
 - `400` payload invalido (`usuario_id`, `evento_id`, `detallesCompra`).
 - `400` evento no disponible o tipo no disponible para el evento.
 - `404` usuario no encontrado.
@@ -759,6 +837,7 @@
 ```
 
 **Errores comunes:**
+
 - `400` `usuario_id` invalido.
 - `404` usuario no encontrado.
 - `500` error interno.
@@ -794,6 +873,7 @@
 ```
 
 **Errores comunes:**
+
 - `400` `compra_id` invalido.
 - `404` compra no encontrada.
 - `500` error interno.
@@ -808,6 +888,8 @@
 
 **Descripcion:** Retorna metricas globales del sistema para dashboards administrativos.
 
+**Nota:** `eventos_pasados` corresponde actualmente a eventos con `estado = 'Completado'`.
+
 **Exito (200):**
 
 ```json
@@ -820,6 +902,7 @@
 ```
 
 **Errores comunes:**
+
 - `500` error interno.
 
 ---
@@ -829,6 +912,7 @@
 **Descripcion:** Obtiene el reporte de ventas por tipo de entrada para un evento especifico.
 
 **Parametros de ruta:**
+
 - `evento_id` (entero positivo)
 
 **Exito (200):**
@@ -867,6 +951,7 @@
 ```
 
 **Errores comunes:**
+
 - `400` `evento_id` invalido.
 - `404` evento no encontrado.
 - `500` error interno.
@@ -882,6 +967,7 @@
 **Descripcion:** Recibe eventos de Clerk (`user.created`, `user.updated`, `user.deleted`) y sincroniza usuarios en BD.
 
 **Headers requeridos:**
+
 - `svix-id`
 - `svix-timestamp`
 - `svix-signature`
@@ -895,6 +981,7 @@
 ```
 
 **Errores comunes:**
+
 - `400` faltan headers Svix.
 - `400` firma de webhook invalida.
 - `500` falta secreto o error interno procesando evento.
@@ -920,10 +1007,9 @@ El backend usa un middleware global (`errorHandler`) para capturar excepciones n
 
 ### Tabla resumen de codigos de error
 
-| Codigo | Significado | Cuando ocurre |
-|---|---|---|
-| 400 | Bad Request | Datos faltantes, invalidos o reglas de negocio incumplidas. |
-| 404 | Not Found | Recurso solicitado inexistente. |
-| 409 | Conflict | Conflictos de negocio (por ejemplo, capacidad menor a vendida). |
-| 500 | Internal Server Error | Error inesperado del servidor. |
-
+| Codigo | Significado           | Cuando ocurre                                                   |
+| ------ | --------------------- | --------------------------------------------------------------- |
+| 400    | Bad Request           | Datos faltantes, invalidos o reglas de negocio incumplidas.     |
+| 404    | Not Found             | Recurso solicitado inexistente.                                 |
+| 409    | Conflict              | Conflictos de negocio (por ejemplo, capacidad menor a vendida). |
+| 500    | Internal Server Error | Error inesperado del servidor.                                  |

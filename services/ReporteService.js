@@ -1,4 +1,4 @@
-import { Compra, Evento, EventoTipoEntrada, TipoEntrada, Usuario, sequelize } from "../models/Asociaciones.js";
+import { Compra, Evento, EventoTipoEntrada, TipoEntrada, Usuario, sequelize, Categoria, Ciudad } from "../models/Asociaciones.js";
 
 class ReporteService {
     async obtenerReporteVentasPorEvento(evento_id) {
@@ -40,8 +40,8 @@ class ReporteService {
     async obtenerMetricasGenerales() {
         const [totalGanancias, eventosActivos, eventosPasados, usuariosRegistrados] = await Promise.all([
             Compra.sum('monto_total'),
-            Evento.count({ where: { estado: true } }),
-            Evento.count({ where: { estado: false } }),
+            Evento.count({ where: { estado: 'Activo' } }),
+            Evento.count({ where: { estado: 'Completado' } }),
             Usuario.count()
         ]);
 
@@ -55,7 +55,7 @@ class ReporteService {
 
     async getTopMostSoldEvents() {
         const eventos = await Evento.findAll({
-            where: { estado: true },
+            where: { estado: 'Activo' },
             attributes: ['id', 'nombre', 'fecha', 'lugar', 'imagen_url', 'hora'],
             include: [
                 {

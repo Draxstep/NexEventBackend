@@ -45,9 +45,12 @@ const Evento = sequelize.define('Evento', {
     allowNull: false,
   },
   estado: {
-    type: DataTypes.BOOLEAN,
+    type: DataTypes.STRING(20),
     allowNull: false,
-    defaultValue: true, 
+    defaultValue: 'Activo',
+    validate: {
+      isIn: [['Activo', 'Completado', 'Cancelado']],
+    },
   }
 }, {
   tableName: 'eventos',

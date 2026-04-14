@@ -1,4 +1,7 @@
 import { Evento, Categoria, Ciudad, Departamento, EventoTipoEntrada } from "../models/Asociaciones.js";
+import { Op, literal } from "sequelize";
+
+const ESTADOS_VALIDOS_EVENTO = ['Activo', 'Completado', 'Cancelado'];
 
 class EventoService {
     async crear(datosEvento) {
@@ -103,7 +106,7 @@ class EventoService {
 
     async obtenerEventosActivos() {
         return await Evento.findAll({
-            where: { estado: true },
+            where: { estado: 'Activo' },
             attributes: ['id', 'nombre', 'fecha', 'lugar', 'imagen_url', 'hora'],
             order: [['fecha', 'ASC']],
             include: [
@@ -113,7 +116,51 @@ class EventoService {
         });
     }
 
-    async cambiarEstado(id) {
+    async obtenerEventosCancelados() {
+        return await Evento.findAll({
+            where: { estado: 'Cancelado' },
+            attributes: ['id', 'nombre', 'fecha', 'lugar', 'imagen_url', 'hora'],
+            order: [['fecha', 'ASC']],
+            include: [
+                { model: Categoria, as: 'Categoria', attributes: ['id', 'nombre'] },
+                { model: Ciudad, attributes: ['nombre'] }
+            ]
+        });
+    }
+
+    async obtenerEventosCompletados() {
+        return await Evento.findAll({
+            where: { estado: 'Completado' },
+            attributes: ['id', 'nombre', 'fecha', 'lugar', 'imagen_url', 'hora'],
+            order: [['fecha', 'ASC']],
+            include: [
+                { model: Categoria, as: 'Categoria', attributes: ['id', 'nombre'] },
+                { model: Ciudad, attributes: ['nombre'] }
+            ]
+        });
+    }
+
+    async completarEventosPasados() {
+        const [registrosActualizados] = await Evento.update(
+            { estado: 'Completado' },
+            {
+                where: {
+                    fecha: { [Op.lt]: literal('CURRENT_DATE') },
+                    estado: { [Op.ne]: 'Completado' }
+                }
+            }
+        );
+
+        return registrosActualizados;
+    }
+
+    async cambiarEstado(id, nuevoEstado) {
+        if (!ESTADOS_VALIDOS_EVENTO.includes(nuevoEstado)) {
+            const error = new Error("Estado inválido. Debe ser Activo, Completado o Cancelado.");
+            error.statusCode = 400;
+            throw error;
+        }
+
         const evento = await Evento.findByPk(id);
         if (!evento) {
             const error = new Error("Evento no encontrado.");
@@ -121,7 +168,7 @@ class EventoService {
             throw error;
         }
 
-        return await evento.update({ estado: !evento.estado });
+        return await evento.update({ estado: nuevoEstado });
     }
 
     calculateStateTickets (tickets) {
