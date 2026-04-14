@@ -1,4 +1,5 @@
 import { Compra, Evento, EventoTipoEntrada, TipoEntrada, Usuario, sequelize, Categoria, Ciudad } from "../models/Asociaciones.js";
+import { fn, col } from 'sequelize';
 
 class ReporteService {
     async obtenerReporteVentasPorEvento(evento_id) {
@@ -56,7 +57,10 @@ class ReporteService {
     async getTopMostSoldEvents() {
         const eventos = await Evento.findAll({
             where: { estado: 'Activo' },
-            attributes: ['id', 'nombre', 'fecha', 'lugar', 'imagen_url', 'hora'],
+            attributes: [
+                'id', 'nombre', 'fecha', 'lugar', 'imagen_url', 'hora',
+                [fn('COALESCE', fn('SUM', col('EventoTipoEntradas.cantidad_vendida')), 0), 'total_vendido']
+            ],
             include: [
                 {
                     model: Categoria,
@@ -69,14 +73,20 @@ class ReporteService {
                 },
                 {
                     model: EventoTipoEntrada,
-                    attributes: ['cantidad_vendida', 'precio'],
+                    attributes: [],
                     required: false
                 }
             ],
+            group: [
+                'Evento.id',
+                'Categoria.id',
+                'Ciudad.id'
+            ],
             order: [
-                ['total_vendido', 'DESC'], 
+                [col('total_vendido'), 'DESC'],
                 ['fecha', 'ASC']
             ],
+            subQuery: false,
             limit: 3
         });
 
