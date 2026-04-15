@@ -56,7 +56,7 @@ class ReporteService {
 
     async getEventsByPopularity() {
         return await Evento.findAll({
-            where: { estado: true }, 
+            where: { estado: 'Activo' }, 
             attributes: [
                 'id', 'nombre', 'fecha', 'lugar', 'imagen_url', 'hora',
                 [sequelize.fn('COUNT', sequelize.col('EventoInteres.id')), 'total_intereses']
