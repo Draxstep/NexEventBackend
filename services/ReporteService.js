@@ -1,4 +1,4 @@
-import { Compra, Evento, EventoTipoEntrada, TipoEntrada, Usuario, sequelize, Categoria, Ciudad } from "../models/Asociaciones.js";
+import { Compra, Evento, EventoTipoEntrada, TipoEntrada, Usuario, sequelize, EventoInteres, Categoria, Ciudad} from "../models/Asociaciones.js";
 import { fn, col } from 'sequelize';
 
 class ReporteService {
@@ -52,6 +52,39 @@ class ReporteService {
             eventos_pasados: eventosPasados,
             usuarios_registrados: usuariosRegistrados
         };
+    }
+
+    async getEventsByPopularity() {
+        return await Evento.findAll({
+            where: { estado: 'Activo' }, 
+            attributes: [
+                'id', 'nombre', 'fecha', 'lugar', 'imagen_url', 'hora',
+                [sequelize.fn('COUNT', sequelize.col('EventoInteres.id')), 'total_intereses']
+            ],
+            include: [
+                {
+                    model: EventoInteres,
+                    attributes: [], 
+                    required: false 
+                },
+                { 
+                    model: Categoria, 
+                    as: 'Categoria', 
+                    attributes: ['id', 'nombre'] 
+                },
+                { 
+                    model: Ciudad, 
+                    attributes: ['nombre'] 
+                }
+            ],
+            group: [
+                'Evento.id', 'Categoria.id', 'Ciudad.id'
+            ],
+            order: [
+                [sequelize.col('total_intereses'), 'DESC'], 
+                ['fecha', 'ASC'] 
+            ]
+        });
     }
 
     async getTopMostSoldEvents() {
