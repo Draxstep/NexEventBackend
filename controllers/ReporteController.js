@@ -32,3 +32,8 @@ export const getEventsByPopularity = asyncHandler(async (req, res) => {
     const events = await reporteService.getEventsByPopularity();
     res.json(events);
 });
+
+export const getTopMostSoldEvents = asyncHandler(async(req, res) => {
+    const events = await reporteService.getTopMostSoldEvents();
+    res.json(events);
+})

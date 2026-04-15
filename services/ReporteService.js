@@ -40,8 +40,8 @@ class ReporteService {
     async obtenerMetricasGenerales() {
         const [totalGanancias, eventosActivos, eventosPasados, usuariosRegistrados] = await Promise.all([
             Compra.sum('monto_total'),
-            Evento.count({ where: { estado: true } }),
-            Evento.count({ where: { estado: false } }),
+            Evento.count({ where: { estado: 'Activo' } }),
+            Evento.count({ where: { estado: 'Completado' } }),
             Usuario.count()
         ]);
 
@@ -84,6 +84,49 @@ class ReporteService {
                 ['fecha', 'ASC'] 
             ]
         });
+    async getTopMostSoldEvents() {
+        const eventos = await Evento.findAll({
+            where: { estado: 'Activo' },
+            attributes: [
+                'id', 'nombre', 'fecha', 'lugar', 'imagen_url', 'hora',
+                [fn('COALESCE', fn('SUM', col('EventoTipoEntradas.cantidad_vendida')), 0), 'total_vendido']
+            ],
+            include: [
+                {
+                    model: Categoria,
+                    as: 'Categoria',
+                    attributes: ['id', 'nombre']
+                },
+                {
+                    model: Ciudad,
+                    attributes: ['nombre']
+                },
+                {
+                    model: EventoTipoEntrada,
+                    attributes: [],
+                    required: false
+                }
+            ],
+            group: [
+                'Evento.id',
+                'Categoria.id',
+                'Ciudad.id'
+            ],
+            order: [
+                [col('total_vendido'), 'DESC'],
+                ['fecha', 'ASC']
+            ],
+            subQuery: false,
+            limit: 3
+        });
+
+        if (!eventos || eventos.length === 0) {
+            const error = new Error("No se encontraron eventos disponibles.");
+            error.code = 'EVENTOS_NO_ENCONTRADOS';
+            throw error;
+        }
+
+        return eventos;
     }
 }
 

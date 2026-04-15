@@ -1,124 +1,105 @@
-# NexEvent API - Documentación para el Equipo de Frontend
+# NexEvent API - Documentacion para el Equipo de Frontend
 
 **Base URL:** `http://localhost:3000/api`
 
-**Fecha de generación:** 25 de febrero de 2026
+**Fecha de generacion:** 14 de abril de 2026
 
 ---
 
 ## Tabla de Contenidos
 
-1. [Información General](#información-general)
-2. [Categorías](#categorías)
+1. [Informacion General](#informacion-general)
+2. [Categorias](#categorias)
    - [GET /api/categorias](#get-apicategorias)
    - [POST /api/categorias](#post-apicategorias)
 3. [Departamentos](#departamentos)
    - [GET /api/departamentos](#get-apidepartamentos)
    - [POST /api/departamentos](#post-apidepartamentos)
    - [GET /api/departamentos/:id/ciudades](#get-apidepartamentosidciudades)
-4. [Eventos](#eventos)
+4. [Tipos de Entrada](#tipos-de-entrada)
+   - [GET /api/tipos-entrada](#get-apitipos-entrada)
+   - [POST /api/tipos-entrada](#post-apitipos-entrada)
+5. [Eventos](#eventos)
    - [GET /api/eventos](#get-apieventos)
    - [GET /api/eventos/activos](#get-apieventosactivos)
-   - [POST /api/eventos](#post-apieventos)
-   - [GET /api/eventos/:id](#get-apieventosid)
-   - [PUT /api/eventos/:id](#put-apieventosid)
-   - [PATCH /api/eventos/:id/estado](#patch-apieventosidestado)
-5. [Intereses de Evento](#intereses-de-evento)
+
+- [GET /api/eventos/cancelados](#get-apieventoscancelados)
+- [GET /api/eventos/completados](#get-apieventoscompletados)
+- [POST /api/eventos](#post-apieventos)
+- [GET /api/eventos/:id](#get-apieventosid)
+- [PUT /api/eventos/:id](#put-apieventosid)
+- [PATCH /api/eventos/completar-pasados](#patch-apieventoscompletar-pasados)
+- [PATCH /api/eventos/:id/estado](#patch-apieventosidestado)
+
+6. [Configuracion de Entradas por Evento](#configuracion-de-entradas-por-evento)
+   - [PUT /api/evento-tipos-entrada/:evento_id](#put-apievento-tipos-entradaevento_id)
+   - [GET /api/evento-tipos-entrada/:evento_id/disponibilidad](#get-apievento-tipos-entradaevento_iddisponibilidad)
+7. [Intereses de Evento](#intereses-de-evento)
    - [POST /api/intereses](#post-apiintereses)
    - [GET /api/intereses/evento/:evento_id/conteo](#get-apiintereseseventoevento_idconteo)
-6. [Manejo Global de Errores](#manejo-global-de-errores)
+   - [GET /api/intereses/evento/:evento_id/verificar/:usuario_id](#get-apiintereseseventoevento_idverificarusuario_id)
+   - [DELETE /api/intereses/evento/:evento_id/usuario/:usuario_id](#delete-apiintereseseventoevento_idusuariousuario_id)
+   - [GET /api/intereses/usuario/:usuario_id/eventos](#get-apiinteresesusuariousuario_ideventos)
+8. [Boletos](#boletos)
+   - [POST /api/boletos/generar](#post-apiboletosgenerar)
+   - [POST /api/boletos/validar-acceso](#post-apiboletosvalidar-acceso)
+   - [PATCH /api/boletos/:boleto_id/cancelar](#patch-apiboletosboleto_idcancelar)
+9. [Compras](#compras)
+
+- [POST /api/compras](#post-apicompras)
+- [GET /api/compras/usuario/:usuario_id/historial](#get-apicomprasusuariousuario_idhistorial)
+- [GET /api/compras/:compra_id](#get-apicomprascompra_id)
+
+10. [Reportes](#reportes)
+
+- [GET /api/reportes/metricas-generales](#get-apireportesmetricas-generales)
+- [GET /api/reportes/ventas/evento/:evento_id](#get-apireportesventaseventoevento_id)
+
+11. [Webhooks](#webhooks)
+
+- [POST /api/webhook/clerk](#post-apiwebhookclerk)
+
+12. [Manejo Global de Errores](#manejo-global-de-errores)
 
 ---
 
-## Información General
+## Informacion General
 
 - **Protocolo:** HTTP
 - **Formato de datos:** JSON (`Content-Type: application/json`)
-- **Autenticación:** Ningún endpoint requiere autenticación en la versión actual.
-- **CORS:** Orígenes permitidos: `http://localhost:5173`, `http://localhost:5174`, `http://localhost:3000`.
+- **Autenticacion:** Ningun endpoint requiere autenticacion en la version actual.
+- **CORS:** Origenes permitidos: `http://localhost:5173`, `http://localhost:5174`, `http://localhost:3000`.
 
 ---
 
-## Categorías
+## Categorias
 
 ---
 
 ### GET /api/categorias
 
-**Descripción:** Obtiene la lista completa de todas las categorías registradas, ordenadas alfabéticamente por nombre. Útil para poblar selectores o filtros de categorías en formularios de creación/edición de eventos.
+**Descripcion:** Obtiene todas las categorias ordenadas alfabeticamente por nombre.
 
-#### 🔒 Autenticación y Headers
-
-| Propiedad | Valor |
-|---|---|
-| Requiere Token | No |
-| Roles permitidos | Cualquiera |
-| Headers extra | Ninguno |
-
-#### 📥 Parámetros de la Solicitud (Request)
-
-**Parámetros de Ruta (Path):** Ninguno
-
-**Parámetros de Consulta (Query):** Ninguno
-
-**Cuerpo de la Solicitud (Body):** No aplica
-
-#### 📤 Respuestas (Responses)
-
-**✅ Éxito (Status 200):**
-
-Retorna un arreglo con todas las categorías ordenadas por nombre ascendente.
+**Exito (200):**
 
 ```json
 [
   {
     "id": 1,
     "nombre": "Conferencia"
-  },
-  {
-    "id": 2,
-    "nombre": "Taller"
   }
 ]
 ```
 
-**❌ Errores Posibles:**
-
-**Status 500 (Internal Server Error):** Error inesperado en el servidor.
-
-```json
-{
-  "error": "Error interno del servidor"
-}
-```
+**Errores comunes:** `500`.
 
 ---
 
 ### POST /api/categorias
 
-**Descripción:** Crea una nueva categoría de evento. Antes de llegar al controlador, el middleware `validarCreacionCategoria` verifica que el campo `nombre` sea un texto válido y no vacío. El controlador también valida la presencia del campo. Úsalo desde un panel de administración para agregar nuevas categorías.
+**Descripcion:** Crea una categoria.
 
-#### 🔒 Autenticación y Headers
-
-| Propiedad | Valor |
-|---|---|
-| Requiere Token | No |
-| Roles permitidos | Cualquiera |
-| Headers extra | `Content-Type: application/json` |
-
-#### 📥 Parámetros de la Solicitud (Request)
-
-**Parámetros de Ruta (Path):** Ninguno
-
-**Parámetros de Consulta (Query):** Ninguno
-
-**Cuerpo de la Solicitud (Body):**
-
-| Campo | Tipo | Requerido | Descripción |
-|---|---|---|---|
-| nombre | String (máx. 50 caracteres) | Sí | Nombre de la categoría. Debe ser un texto válido no vacío. Se aplica `trim()` automáticamente. |
-
-**Ejemplo de Body (JSON):**
+**Body:**
 
 ```json
 {
@@ -126,11 +107,7 @@ Retorna un arreglo con todas las categorías ordenadas por nombre ascendente.
 }
 ```
 
-#### 📤 Respuestas (Responses)
-
-**✅ Éxito (Status 201):**
-
-La categoría fue creada exitosamente. Retorna el objeto de la categoría recién creada.
+**Exito (201):**
 
 ```json
 {
@@ -139,40 +116,11 @@ La categoría fue creada exitosamente. Retorna el objeto de la categoría recié
 }
 ```
 
-**❌ Errores Posibles:**
+**Errores comunes:**
 
-**Status 400 (Bad Request):** El campo `nombre` no fue enviado, no es un string o está vacío. Este error es emitido por el **middleware de validación**.
-
-```json
-{
-  "error": "Datos invalidos.",
-  "details": "El campo 'nombre' es obligatorio y debe ser un texto valido."
-}
-```
-
-**Status 400 (Bad Request):** El campo `nombre` no fue enviado. Este error es emitido por el **controlador** (si el middleware no lo atrapó).
-
-```json
-{
-  "error": "El nombre de la categoria es obligatorio."
-}
-```
-
-**Status 409 (Conflict):** Ya existe una categoría con ese nombre (restricción `UNIQUE`).
-
-```json
-{
-  "error": "Esta categoria ya existe."
-}
-```
-
-**Status 500 (Internal Server Error):** Error inesperado en el servidor.
-
-```json
-{
-  "error": "Error interno del servidor"
-}
-```
+- `400` datos invalidos.
+- `409` categoria duplicada.
+- `500` error interno.
 
 ---
 
@@ -182,80 +130,28 @@ La categoría fue creada exitosamente. Retorna el objeto de la categoría recié
 
 ### GET /api/departamentos
 
-**Descripción:** Obtiene la lista completa de todos los departamentos registrados, ordenados alfabéticamente por nombre. Útil para poblar el primer selector en un flujo de selección de ubicación (Departamento → Ciudad).
+**Descripcion:** Obtiene todos los departamentos ordenados por nombre.
 
-#### 🔒 Autenticación y Headers
-
-| Propiedad | Valor |
-|---|---|
-| Requiere Token | No |
-| Roles permitidos | Cualquiera |
-| Headers extra | Ninguno |
-
-#### 📥 Parámetros de la Solicitud (Request)
-
-**Parámetros de Ruta (Path):** Ninguno
-
-**Parámetros de Consulta (Query):** Ninguno
-
-**Cuerpo de la Solicitud (Body):** No aplica
-
-#### 📤 Respuestas (Responses)
-
-**✅ Éxito (Status 200):**
-
-Retorna un arreglo con todos los departamentos ordenados por nombre ascendente.
+**Exito (200):**
 
 ```json
 [
   {
     "id": 1,
     "nombre": "Antioquia"
-  },
-  {
-    "id": 2,
-    "nombre": "Cundinamarca"
   }
 ]
 ```
 
-**❌ Errores Posibles:**
-
-**Status 500 (Internal Server Error):** Error inesperado en el servidor.
-
-```json
-{
-  "error": "Error interno del servidor"
-}
-```
+**Errores comunes:** `500`.
 
 ---
 
 ### POST /api/departamentos
 
-**Descripción:** Crea un nuevo departamento. El middleware `validarCreacionDepartamento` valida que el campo `nombre` sea un texto válido antes de llegar al controlador. Úsalo desde un panel de administración para agregar nuevos departamentos al sistema.
+**Descripcion:** Crea un departamento.
 
-#### 🔒 Autenticación y Headers
-
-| Propiedad | Valor |
-|---|---|
-| Requiere Token | No |
-| Roles permitidos | Cualquiera |
-| Headers extra | `Content-Type: application/json` |
-
-#### 📥 Parámetros de la Solicitud (Request)
-
-**Parámetros de Ruta (Path):** Ninguno
-
-**Parámetros de Consulta (Query):** Ninguno
-
-**Cuerpo de la Solicitud (Body):**
-
-| Campo | Tipo | Requerido | Descripción |
-|---|---|---|---|
-| nombre | String (máx. 100 caracteres) | Sí | Nombre del departamento. Debe ser un texto válido no vacío. Se aplica `trim()` automáticamente. |
-
-**Ejemplo de Body (JSON):**
+**Body:**
 
 ```json
 {
@@ -263,11 +159,7 @@ Retorna un arreglo con todos los departamentos ordenados por nombre ascendente.
 }
 ```
 
-#### 📤 Respuestas (Responses)
-
-**✅ Éxito (Status 201):**
-
-El departamento fue creado exitosamente. Retorna el objeto del departamento recién creado.
+**Exito (201):**
 
 ```json
 {
@@ -276,97 +168,87 @@ El departamento fue creado exitosamente. Retorna el objeto del departamento reci
 }
 ```
 
-**❌ Errores Posibles:**
+**Errores comunes:**
 
-**Status 400 (Bad Request):** El campo `nombre` no fue enviado, no es un string o está vacío. Emitido por el **middleware de validación**.
-
-```json
-{
-  "error": "Datos inválidos",
-  "details": "El campo 'nombre' es obligatorio y debe ser un texto válido."
-}
-```
-
-**Status 400 (Bad Request):** El campo `nombre` no fue enviado. Emitido por el **controlador**.
-
-```json
-{
-  "error": "El nombre del departamento es obligatorio."
-}
-```
-
-**Status 409 (Conflict):** Ya existe un departamento con ese nombre (restricción `UNIQUE`).
-
-```json
-{
-  "error": "Este departamento ya está registrado."
-}
-```
-
-**Status 500 (Internal Server Error):** Error inesperado en el servidor.
-
-```json
-{
-  "error": "Error interno del servidor"
-}
-```
+- `400` datos invalidos.
+- `409` departamento duplicado.
+- `500` error interno.
 
 ---
 
 ### GET /api/departamentos/:id/ciudades
 
-**Descripción:** Obtiene la lista de ciudades que pertenecen a un departamento específico, ordenadas alfabéticamente. Se usa para poblar el selector de ciudades una vez que el usuario ha seleccionado un departamento.
+**Descripcion:** Obtiene las ciudades de un departamento.
 
-#### 🔒 Autenticación y Headers
-
-| Propiedad | Valor |
-|---|---|
-| Requiere Token | No |
-| Roles permitidos | Cualquiera |
-| Headers extra | Ninguno |
-
-#### 📥 Parámetros de la Solicitud (Request)
-
-**Parámetros de Ruta (Path):**
-
-| Parámetro | Tipo | Descripción |
-|---|---|---|
-| id | Integer | ID del departamento del cual se quieren obtener las ciudades. |
-
-**Parámetros de Consulta (Query):** Ninguno
-
-**Cuerpo de la Solicitud (Body):** No aplica
-
-#### 📤 Respuestas (Responses)
-
-**✅ Éxito (Status 200):**
-
-Retorna un arreglo con las ciudades del departamento indicado. Si el departamento no tiene ciudades o el ID no existe, retorna un arreglo vacío.
+**Exito (200):**
 
 ```json
 [
   {
     "id": 1,
-    "nombre": "Medellín",
-    "departamento_id": 1
-  },
-  {
-    "id": 2,
-    "nombre": "Envigado",
+    "nombre": "Medellin",
     "departamento_id": 1
   }
 ]
 ```
 
-**❌ Errores Posibles:**
+**Errores comunes:** `500`.
 
-**Status 500 (Internal Server Error):** Error inesperado en el servidor.
+---
+
+## Tipos de Entrada
+
+---
+
+### GET /api/tipos-entrada
+
+**Descripcion:** Obtiene todos los tipos de entrada ordenados por nombre.
+
+**Exito (200):**
+
+```json
+[
+  {
+    "id": 1,
+    "nombre": "General"
+  },
+  {
+    "id": 2,
+    "nombre": "VIP"
+  }
+]
+```
+
+**Errores comunes:** `500`.
+
+---
+
+### POST /api/tipos-entrada
+
+**Descripcion:** Crea un tipo de entrada.
+
+**Body:**
 
 ```json
 {
-  "error": "Error interno del servidor"
+  "nombre": "General"
 }
 ```
+
+**Exito (201):**
+
+```json
+{
+  "id": 1,
+  "nombre": "General"
+}
+```
+
+**Errores comunes:**
+
+- `400` datos invalidos.
+- `409` tipo de entrada duplicado.
+- `500` error interno.
 
 ---
 
@@ -376,29 +258,9 @@ Retorna un arreglo con las ciudades del departamento indicado. Si el departament
 
 ### GET /api/eventos
 
-**Descripción:** Obtiene la lista de **todos** los eventos (activos e inactivos), ordenados por fecha ascendente. Cada evento incluye información resumida junto con su categoría y ciudad asociadas. Ideal para una vista de administración o listado general.
+**Descripcion:** Obtiene todos los eventos ordenados por fecha.
 
-#### 🔒 Autenticación y Headers
-
-| Propiedad | Valor |
-|---|---|
-| Requiere Token | No |
-| Roles permitidos | Cualquiera |
-| Headers extra | Ninguno |
-
-#### 📥 Parámetros de la Solicitud (Request)
-
-**Parámetros de Ruta (Path):** Ninguno
-
-**Parámetros de Consulta (Query):** Ninguno
-
-**Cuerpo de la Solicitud (Body):** No aplica
-
-#### 📤 Respuestas (Responses)
-
-**✅ Éxito (Status 200):**
-
-Retorna un arreglo de eventos con datos resumidos. Cada evento incluye objetos anidados `Categoria` y `Ciudad`.
+**Exito (200):**
 
 ```json
 [
@@ -406,497 +268,268 @@ Retorna un arreglo de eventos con datos resumidos. Cada evento incluye objetos a
     "id": 1,
     "nombre": "Tech Conference 2026",
     "fecha": "2026-05-15",
-    "lugar": "Centro de Convenciones Plaza Mayor",
+    "lugar": "Centro de Convenciones",
     "imagen_url": "https://ejemplo.com/imagen.jpg",
+    "estado": "Activo",
+    "estado_entradas": "AVAILABLE",
     "Categoria": {
       "id": 1,
       "nombre": "Conferencia"
     },
     "Ciudad": {
-      "nombre": "Medellín"
-    }
-  },
-  {
-    "id": 2,
-    "nombre": "Taller de Node.js",
-    "fecha": "2026-06-20",
-    "lugar": "Biblioteca EPM",
-    "imagen_url": null,
-    "Categoria": {
-      "id": 2,
-      "nombre": "Taller"
-    },
-    "Ciudad": {
-      "nombre": "Bogotá"
+      "nombre": "Medellin"
     }
   }
 ]
 ```
 
-> **Nota para el Frontend:** Los campos retornados por evento son: `id`, `nombre`, `fecha`, `lugar`, `imagen_url`. Los campos `Categoria` y `Ciudad` son objetos anidados.
-
-**❌ Errores Posibles:**
-
-**Status 500 (Internal Server Error):** Error inesperado en el servidor.
-
-```json
-{
-  "error": "Error interno del servidor"
-}
-```
+**Errores comunes:** `500`.
 
 ---
 
 ### GET /api/eventos/activos
 
-**Descripción:** Obtiene la lista de eventos que están **activos** (`estado: true`), ordenados por fecha ascendente. Usa este endpoint para mostrar al público únicamente los eventos habilitados. La estructura de respuesta es idéntica a `GET /api/eventos`.
+**Descripcion:** Obtiene eventos activos (`estado = 'Activo'`).
 
-#### 🔒 Autenticación y Headers
+**Exito (200):** Arreglo con estructura similar a `GET /api/eventos`.
 
-| Propiedad | Valor |
-|---|---|
-| Requiere Token | No |
-| Roles permitidos | Cualquiera |
-| Headers extra | Ninguno |
+**Errores comunes:** `500`.
 
-#### 📥 Parámetros de la Solicitud (Request)
+---
 
-**Parámetros de Ruta (Path):** Ninguno
+### GET /api/eventos/cancelados
 
-**Parámetros de Consulta (Query):** Ninguno
+**Descripcion:** Obtiene eventos cancelados (`estado = 'Cancelado'`).
 
-**Cuerpo de la Solicitud (Body):** No aplica
+**Exito (200):** Arreglo con estructura similar a `GET /api/eventos/activos`.
 
-#### 📤 Respuestas (Responses)
+**Errores comunes:** `500`.
 
-**✅ Éxito (Status 200):**
+---
 
-Retorna un arreglo de eventos activos con la misma estructura que `GET /api/eventos`.
+### GET /api/eventos/completados
 
-```json
-[
-  {
-    "id": 1,
-    "nombre": "Tech Conference 2026",
-    "fecha": "2026-05-15",
-    "lugar": "Centro de Convenciones Plaza Mayor",
-    "imagen_url": "https://ejemplo.com/imagen.jpg",
-    "Categoria": {
-      "id": 1,
-      "nombre": "Conferencia"
-    },
-    "Ciudad": {
-      "nombre": "Medellín"
-    }
-  }
-]
-```
+**Descripcion:** Obtiene eventos completados (`estado = 'Completado'`).
 
-**❌ Errores Posibles:**
+**Exito (200):** Arreglo con estructura similar a `GET /api/eventos/activos`.
 
-**Status 500 (Internal Server Error):** Error inesperado en el servidor.
-
-```json
-{
-  "error": "Error interno del servidor"
-}
-```
+**Errores comunes:** `500`.
 
 ---
 
 ### POST /api/eventos
 
-**Descripción:** Crea un nuevo evento. El middleware `validarCreacionEvento` valida que los campos obligatorios estén presentes, que el nombre no exceda 100 caracteres, que la fecha no sea anterior a la fecha actual y que la imagen (si se provee) sea formato JPG o PNG. Úsalo desde el formulario de creación de eventos.
+**Descripcion:** Crea un evento.
 
-#### 🔒 Autenticación y Headers
+**Notas de envio:**
 
-| Propiedad | Valor |
-|---|---|
-| Requiere Token | No |
-| Roles permitidos | Cualquiera |
-| Headers extra | `Content-Type: application/json` |
+- Soporta `multipart/form-data` (campo de archivo `imagen`) por el middleware de upload.
+- Tambien puede recibir `imagen_url` en body si no se sube archivo.
 
-#### 📥 Parámetros de la Solicitud (Request)
-
-**Parámetros de Ruta (Path):** Ninguno
-
-**Parámetros de Consulta (Query):** Ninguno
-
-**Cuerpo de la Solicitud (Body):**
-
-| Campo | Tipo | Requerido | Descripción |
-|---|---|---|---|
-| nombre | String (máx. 100) | Sí | Nombre del evento. |
-| fecha | String (DATEONLY) | Sí | Fecha del evento en formato `YYYY-MM-DD`. Debe ser igual o posterior a la fecha actual. |
-| lugar | String (máx. 255) | Sí | Lugar físico donde se realizará el evento. |
-| hora | String (TIME) | Sí | Hora del evento en formato `HH:MM:SS` o `HH:MM`. |
-| categoria_id | Integer | Sí | ID de la categoría a la que pertenece el evento. Debe existir en la tabla `categorias`. |
-| ciudad_id | Integer | Sí | ID de la ciudad donde se realizará el evento. Debe existir en la tabla `ciudades`. |
-| descripcion | String (TEXT) | No | Descripción detallada del evento. |
-| imagen_url | String (TEXT) | No | URL de la imagen del evento. Si se provee, debe terminar en `.jpg` o `.png`. |
-| valor | Decimal (10,2) | No | Valor/precio del evento. |
-
-**Ejemplo de Body (JSON):**
+**Body JSON de ejemplo:**
 
 ```json
 {
   "nombre": "Tech Conference 2026",
   "fecha": "2026-05-15",
-  "lugar": "Centro de Convenciones Plaza Mayor",
+  "lugar": "Centro de Convenciones",
   "hora": "09:00:00",
   "categoria_id": 1,
   "ciudad_id": 3,
-  "descripcion": "Una conferencia sobre las últimas tendencias en tecnología.",
-  "imagen_url": "https://ejemplo.com/imagen-evento.jpg",
-  "valor": 50000.00
+  "descripcion": "Conferencia de tecnologia",
+  "imagen_url": "https://ejemplo.com/imagen.jpg"
 }
 ```
 
-#### 📤 Respuestas (Responses)
-
-**✅ Éxito (Status 201):**
-
-El evento fue creado exitosamente. Retorna un mensaje de confirmación.
+**Exito (201):**
 
 ```json
 {
-  "message": "Evento agregado correctamente."
+  "message": "Evento agregado correctamente.",
+  "evento": {
+    "id": 1,
+    "nombre": "Tech Conference 2026"
+  }
 }
 ```
 
-**❌ Errores Posibles:**
+**Errores comunes:**
 
-**Status 400 (Bad Request):** Faltan campos obligatorios. Emitido por el **middleware de validación**.
-
-```json
-{
-  "error": "Faltan datos obligatorios",
-  "details": "nombre, fecha, lugar, hora, categoria_id y ciudad_id son requeridos."
-}
-```
-
-**Status 400 (Bad Request):** El nombre del evento supera los 100 caracteres.
-
-```json
-{
-  "error": "Nombre demasiado largo",
-  "details": "El nombre del evento no puede superar los 100 caracteres."
-}
-```
-
-**Status 400 (Bad Request):** La fecha del evento es anterior a la fecha actual.
-
-```json
-{
-  "error": "Fecha inválida",
-  "details": "La fecha del evento debe ser igual o posterior a la fecha actual."
-}
-```
-
-**Status 400 (Bad Request):** La imagen no tiene formato JPG o PNG.
-
-```json
-{
-  "error": "La imagen debe ser formato JPG o PNG."
-}
-```
-
-**Status 400 (Bad Request):** La `categoria_id` o `ciudad_id` no existen en la base de datos (violación de clave foránea).
-
-```json
-{
-  "error": "Inconsistencia de datos: La categoría o la ciudad seleccionada no existe."
-}
-```
-
-**Status 500 (Internal Server Error):** Error inesperado en el servidor.
-
-```json
-{
-  "error": "Error interno del servidor"
-}
-```
+- `400` validaciones de campos.
+- `400` inconsistencias de FK (categoria/ciudad inexistente).
+- `500` error interno.
 
 ---
 
 ### GET /api/eventos/:id
 
-**Descripción:** Obtiene el detalle completo de un evento específico por su ID. Incluye la categoría, la ciudad y el departamento al que pertenece la ciudad. Ideal para la vista de detalle de un evento.
+**Descripcion:** Obtiene detalle de un evento con categoria, ciudad y departamento.
 
-#### 🔒 Autenticación y Headers
+**Exito (200):** objeto del evento.
 
-| Propiedad | Valor |
-|---|---|
-| Requiere Token | No |
-| Roles permitidos | Cualquiera |
-| Headers extra | Ninguno |
+**Errores comunes:**
 
-#### 📥 Parámetros de la Solicitud (Request)
-
-**Parámetros de Ruta (Path):**
-
-| Parámetro | Tipo | Descripción |
-|---|---|---|
-| id | Integer | ID del evento que se desea consultar. |
-
-**Parámetros de Consulta (Query):** Ninguno
-
-**Cuerpo de la Solicitud (Body):** No aplica
-
-#### 📤 Respuestas (Responses)
-
-**✅ Éxito (Status 200):**
-
-Retorna el objeto completo del evento con datos anidados de `Categoria`, `Ciudad` y `Departamento`. Los campos `categoria_id` y `ciudad_id` son excluidos del nivel raíz ya que la información se entrega en los objetos anidados.
-
-```json
-{
-  "id": 1,
-  "nombre": "Tech Conference 2026",
-  "fecha": "2026-05-15",
-  "lugar": "Centro de Convenciones Plaza Mayor",
-  "hora": "09:00:00",
-  "descripcion": "Una conferencia sobre las últimas tendencias en tecnología.",
-  "imagen_url": "https://ejemplo.com/imagen-evento.jpg",
-  "valor": "50000.00",
-  "fecha_creacion": "2026-02-20T15:30:00.000Z",
-  "estado": true,
-  "Categoria": {
-    "id": 1,
-    "nombre": "Conferencia"
-  },
-  "Ciudad": {
-    "id": 3,
-    "nombre": "Medellín",
-    "Departamento": {
-      "id": 1,
-      "nombre": "Antioquia"
-    }
-  }
-}
-```
-
-> **Nota para el Frontend:** La estructura de datos anidados es: `evento.Ciudad.Departamento.nombre` para acceder al nombre del departamento. El campo `valor` se retorna como String decimal (ej. `"50000.00"`).
-
-**❌ Errores Posibles:**
-
-**Status 404 (Not Found):** No existe un evento con el ID proporcionado.
-
-```json
-{
-  "error": "Evento no encontrado."
-}
-```
-
-**Status 500 (Internal Server Error):** Error inesperado en el servidor.
-
-```json
-{
-  "error": "Error interno del servidor"
-}
-```
+- `404` evento no encontrado.
+- `500` error interno.
 
 ---
 
 ### PUT /api/eventos/:id
 
-**Descripción:** Actualiza todos los datos de un evento existente. Pasa por el mismo middleware de validación que la creación (`validarCreacionEvento`), por lo que aplican las mismas reglas de validación. Úsalo desde el formulario de edición de eventos.
+**Descripcion:** Actualiza un evento.
 
-#### 🔒 Autenticación y Headers
+**Body:** mismos campos de `POST /api/eventos`.
 
-| Propiedad | Valor |
-|---|---|
-| Requiere Token | No |
-| Roles permitidos | Cualquiera |
-| Headers extra | `Content-Type: application/json` |
-
-#### 📥 Parámetros de la Solicitud (Request)
-
-**Parámetros de Ruta (Path):**
-
-| Parámetro | Tipo | Descripción |
-|---|---|---|
-| id | Integer | ID del evento que se desea actualizar. |
-
-**Parámetros de Consulta (Query):** Ninguno
-
-**Cuerpo de la Solicitud (Body):**
-
-| Campo | Tipo | Requerido | Descripción |
-|---|---|---|---|
-| nombre | String (máx. 100) | Sí | Nombre del evento. |
-| fecha | String (DATEONLY) | Sí | Fecha del evento en formato `YYYY-MM-DD`. Debe ser igual o posterior a la fecha actual. |
-| lugar | String (máx. 255) | Sí | Lugar físico donde se realizará el evento. |
-| hora | String (TIME) | Sí | Hora del evento en formato `HH:MM:SS` o `HH:MM`. |
-| categoria_id | Integer | Sí | ID de la categoría. Debe existir en la tabla `categorias`. |
-| ciudad_id | Integer | Sí | ID de la ciudad. Debe existir en la tabla `ciudades`. |
-| descripcion | String (TEXT) | No | Descripción detallada del evento. |
-| imagen_url | String (TEXT) | No | URL de la imagen del evento. Si se provee, debe terminar en `.jpg` o `.png`. |
-| valor | Decimal (10,2) | No | Valor/precio del evento. |
-
-**Ejemplo de Body (JSON):**
-
-```json
-{
-  "nombre": "Tech Conference 2026 - Edición Especial",
-  "fecha": "2026-06-20",
-  "lugar": "Auditorio Principal Universidad Nacional",
-  "hora": "10:00:00",
-  "categoria_id": 1,
-  "ciudad_id": 5,
-  "descripcion": "Edición especial con speakers internacionales.",
-  "imagen_url": "https://ejemplo.com/nueva-imagen.png",
-  "valor": 75000.00
-}
-```
-
-#### 📤 Respuestas (Responses)
-
-**✅ Éxito (Status 201):**
-
-El evento fue actualizado exitosamente. Retorna un mensaje de confirmación junto con el objeto del evento actualizado.
+**Exito (200):**
 
 ```json
 {
   "message": "Evento actualizado correctamente.",
   "evento": {
     "id": 1,
-    "nombre": "Tech Conference 2026 - Edición Especial",
-    "fecha": "2026-06-20",
-    "lugar": "Auditorio Principal Universidad Nacional",
-    "hora": "10:00:00",
-    "categoria_id": 1,
-    "descripcion": "Edición especial con speakers internacionales.",
-    "imagen_url": "https://ejemplo.com/nueva-imagen.png",
-    "valor": "75000.00",
-    "fecha_creacion": "2026-02-20T15:30:00.000Z",
-    "ciudad_id": 5,
-    "estado": true
+    "nombre": "Evento actualizado"
   }
 }
 ```
 
-**❌ Errores Posibles:**
+**Errores comunes:**
 
-**Status 400 (Bad Request):** Faltan campos obligatorios (middleware de validación). Mismos errores que en `POST /api/eventos`.
-
-```json
-{
-  "error": "Faltan datos obligatorios",
-  "details": "nombre, fecha, lugar, hora, categoria_id y ciudad_id son requeridos."
-}
-```
-
-**Status 400 (Bad Request):** La `categoria_id` o `ciudad_id` no existen en la base de datos.
-
-```json
-{
-  "error": "Inconsistencia de datos: La categoría o la ciudad seleccionada no existe."
-}
-```
-
-**Status 404 (Not Found):** No existe un evento con el ID proporcionado.
-
-```json
-{
-  "error": "Evento no encontrado."
-}
-```
-
-**Status 500 (Internal Server Error):** Error inesperado en el servidor.
-
-```json
-{
-  "error": "Error interno del servidor"
-}
-```
+- `400` validaciones de campos.
+- `400` inconsistencias de FK.
+- `404` evento no encontrado.
+- `500` error interno.
 
 ---
 
 ### PATCH /api/eventos/:id/estado
 
-**Descripción:** Alterna (toggle) el estado de un evento entre activo (`true`) e inactivo (`false`). Si el evento está activo, pasa a inactivo y viceversa. Útil para activar/desactivar eventos desde un panel de administración sin necesidad de eliminarlos.
+**Descripcion:** Actualiza el estado del evento a un valor permitido.
 
-#### 🔒 Autenticación y Headers
-
-| Propiedad | Valor |
-|---|---|
-| Requiere Token | No |
-| Roles permitidos | Cualquiera |
-| Headers extra | Ninguno |
-
-#### 📥 Parámetros de la Solicitud (Request)
-
-**Parámetros de Ruta (Path):**
-
-| Parámetro | Tipo | Descripción |
-|---|---|---|
-| id | Integer | ID del evento cuyo estado se desea cambiar. |
-
-**Parámetros de Consulta (Query):** Ninguno
-
-**Cuerpo de la Solicitud (Body):** No aplica (el estado se alterna automáticamente).
-
-#### 📤 Respuestas (Responses)
-
-**✅ Éxito (Status 200):**
-
-El estado fue cambiado exitosamente. El mensaje varía dependiendo del nuevo estado.
-
-**Cuando el evento se activa:**
+**Body:**
 
 ```json
 {
-  "message": "Evento activado.",
+  "estado": "Completado"
+}
+```
+
+Valores permitidos para `estado`: `Activo`, `Completado`, `Cancelado`.
+
+**Exito (200):**
+
+```json
+{
+  "message": "Estado del evento actualizado a Completado.",
   "evento": {
     "id": 1,
-    "nombre": "Tech Conference 2026",
-    "fecha": "2026-05-15",
-    "lugar": "Centro de Convenciones Plaza Mayor",
-    "hora": "09:00:00",
-    "categoria_id": 1,
-    "descripcion": "Una conferencia sobre las últimas tendencias.",
-    "imagen_url": "https://ejemplo.com/imagen.jpg",
-    "valor": "50000.00",
-    "fecha_creacion": "2026-02-20T15:30:00.000Z",
-    "ciudad_id": 3,
-    "estado": true
+    "estado": "Completado"
   }
 }
 ```
 
-**Cuando el evento se inactiva:**
+**Errores comunes:**
+
+- `400` estado faltante o invalido.
+- `404` evento no encontrado.
+- `500` error interno.
+
+---
+
+### PATCH /api/eventos/completar-pasados
+
+**Descripcion:** Marca como `Completado` todos los eventos cuya `fecha` es menor a la fecha actual (`CURRENT_DATE`) y que aun no estan completados.
+
+**Exito (200):**
 
 ```json
 {
-  "message": "Evento inactivado.",
-  "evento": {
-    "id": 1,
-    "nombre": "Tech Conference 2026",
-    "estado": false
+  "message": "Se actualizaron 3 evento(s) a Completado.",
+  "registros_actualizados": 3
+}
+```
+
+**Errores comunes:**
+
+- `500` error interno.
+
+---
+
+## Configuracion de Entradas por Evento
+
+---
+
+### PUT /api/evento-tipos-entrada/:evento_id
+
+**Descripcion:** Configura tipos de entrada para un evento.
+
+**Comportamiento actual:**
+
+- Crea o actualiza los tipos enviados en el payload.
+- Si un tipo existente no viene en el payload, se elimina.
+- Si se intenta eliminar un tipo con entradas vendidas, la operacion falla.
+- Si se actualiza un tipo existente, `capacidad_total` no puede ser menor a `cantidad_vendida`.
+
+**Body (array):**
+
+```json
+[
+  {
+    "tipo_entrada_id": 1,
+    "precio": 12000,
+    "capacidad_total": 30
+  },
+  {
+    "tipo_entrada_id": 2,
+    "precio": 25000,
+    "capacidad_total": 10
   }
-}
+]
 ```
 
-> **Nota para el Frontend:** Puedes usar el campo `evento.estado` del response para actualizar la UI inmediatamente sin necesidad de hacer otra petición GET.
-
-**❌ Errores Posibles:**
-
-**Status 404 (Not Found):** No existe un evento con el ID proporcionado.
+**Exito (200):**
 
 ```json
 {
-  "error": "Evento no encontrado."
+  "message": "Entradas del evento configuradas correctamente.",
+  "configuracion": [
+    {
+      "id": 1,
+      "tipo_entrada_id": 1,
+      "tipo_entrada": {
+        "id": 1,
+        "nombre": "General"
+      },
+      "precio": "12000.00",
+      "capacidad_total": 30,
+      "cantidad_vendida": 0,
+      "asientos_disponibles": 30
+    }
+  ]
 }
 ```
 
-**Status 500 (Internal Server Error):** Error inesperado en el servidor.
+**Errores comunes:**
 
-```json
-{
-  "error": "Error interno del servidor"
-}
-```
+- `400` evento_id invalido.
+- `400` payload invalido.
+- `400` tipo de entrada inexistente.
+- `404` evento no encontrado.
+- `409` capacidad menor que vendida.
+- `500` error interno.
+
+---
+
+### GET /api/evento-tipos-entrada/:evento_id/disponibilidad
+
+**Descripcion:** Obtiene disponibilidad por tipo de entrada (`capacidad_total - cantidad_vendida`).
+
+**Exito (200):** arreglo de configuraciones con `asientos_disponibles`.
+
+**Errores comunes:**
+
+- `400` evento_id invalido.
+- `404` evento no encontrado.
+- `500` error interno.
 
 ---
 
@@ -906,110 +539,43 @@ El estado fue cambiado exitosamente. El mensaje varía dependiendo del nuevo est
 
 ### POST /api/intereses
 
-**Descripción:** Registra un nuevo interés (like/me interesa) sobre un evento. Cada llamada a este endpoint crea un nuevo registro de interés. No requiere autenticación ni identifica al usuario, simplemente incrementa el conteo. Úsalo cuando un usuario hace clic en "Me interesa" en la vista de un evento.
+**Descripcion:** Registra interes de un usuario por un evento.
 
-#### 🔒 Autenticación y Headers
-
-| Propiedad | Valor |
-|---|---|
-| Requiere Token | No |
-| Roles permitidos | Cualquiera |
-| Headers extra | `Content-Type: application/json` |
-
-#### 📥 Parámetros de la Solicitud (Request)
-
-**Parámetros de Ruta (Path):** Ninguno
-
-**Parámetros de Consulta (Query):** Ninguno
-
-**Cuerpo de la Solicitud (Body):**
-
-| Campo | Tipo | Requerido | Descripción |
-|---|---|---|---|
-| evento_id | Integer | Sí | ID del evento sobre el cual se registra el interés. Debe existir en la tabla `eventos`. |
-
-**Ejemplo de Body (JSON):**
+**Body:**
 
 ```json
 {
-  "evento_id": 1
+  "evento_id": 1,
+  "usuario_id": "user_abc123"
 }
 ```
 
-#### 📤 Respuestas (Responses)
-
-**✅ Éxito (Status 201):**
-
-El interés fue registrado exitosamente. Retorna un mensaje de confirmación junto con el objeto del interés creado.
+**Exito (201):**
 
 ```json
 {
-  "message": "Interés registrado exitosamente.",
+  "message": "Interes registrado exitosamente.",
   "interes": {
-    "id": 15,
+    "id": 10,
     "evento_id": 1,
-    "fecha_creacion": "2026-02-25T14:30:00.000Z"
+    "usuario_id": "user_abc123"
   }
 }
 ```
 
-**❌ Errores Posibles:**
+**Errores comunes:**
 
-**Status 400 (Bad Request):** El campo `evento_id` no fue enviado en el body.
-
-```json
-{
-  "error": "El ID del evento es obligatorio."
-}
-```
-
-**Status 404 (Not Found):** El evento con el `evento_id` proporcionado no existe.
-
-```json
-{
-  "error": "El evento no existe."
-}
-```
-
-**Status 500 (Internal Server Error):** Error inesperado en el servidor.
-
-```json
-{
-  "error": "Error interno del servidor"
-}
-```
+- `400` falta evento_id o usuario_id.
+- `404` evento no existe.
+- `500` error interno.
 
 ---
 
 ### GET /api/intereses/evento/:evento_id/conteo
 
-**Descripción:** Obtiene el número total de intereses registrados para un evento específico. Úsalo para mostrar el contador de "Me interesa" junto a un evento.
+**Descripcion:** Obtiene total de interesados por evento.
 
-#### 🔒 Autenticación y Headers
-
-| Propiedad | Valor |
-|---|---|
-| Requiere Token | No |
-| Roles permitidos | Cualquiera |
-| Headers extra | Ninguno |
-
-#### 📥 Parámetros de la Solicitud (Request)
-
-**Parámetros de Ruta (Path):**
-
-| Parámetro | Tipo | Descripción |
-|---|---|---|
-| evento_id | Integer | ID del evento del cual se quiere obtener el conteo de intereses. |
-
-**Parámetros de Consulta (Query):** Ninguno
-
-**Cuerpo de la Solicitud (Body):** No aplica
-
-#### 📤 Respuestas (Responses)
-
-**✅ Éxito (Status 200):**
-
-Retorna el ID del evento y el total de interesados. Si el evento no tiene intereses o el ID no existe, retorna `total_interesados: 0`.
+**Exito (200):**
 
 ```json
 {
@@ -1018,28 +584,420 @@ Retorna el ID del evento y el total de interesados. Si el evento no tiene intere
 }
 ```
 
-**❌ Errores Posibles:**
+**Errores comunes:** `500`.
 
-**Status 500 (Internal Server Error):** Error inesperado en el servidor.
+---
+
+### GET /api/intereses/evento/:evento_id/verificar/:usuario_id
+
+**Descripcion:** Indica si el usuario ya marco interes en el evento.
+
+**Exito (200):**
 
 ```json
 {
-  "error": "Error interno del servidor"
+  "evento_id": 1,
+  "interesado": true
 }
 ```
+
+**Errores comunes:** `500`.
+
+---
+
+### DELETE /api/intereses/evento/:evento_id/usuario/:usuario_id
+
+**Descripcion:** Elimina el interes de un usuario por un evento.
+
+**Exito (200):**
+
+```json
+{
+  "message": "Interes eliminado exitosamente."
+}
+```
+
+**Errores comunes:** `500`.
+
+---
+
+### GET /api/intereses/usuario/:usuario_id/eventos
+
+**Descripcion:** Lista los eventos marcados como interesados por un usuario.
+
+**Exito (200):**
+
+```json
+[
+  {
+    "id": 1,
+    "nombre": "Tech Conference 2026",
+    "fecha": "2026-05-15",
+    "hora": "09:00:00",
+    "lugar": "Centro de Convenciones",
+    "imagen_url": null,
+    "valor": "50000.00",
+    "ciudad": "Medellin"
+  }
+]
+```
+
+**Errores comunes:** `500`.
+
+---
+
+## Boletos
+
+---
+
+### POST /api/boletos/generar
+
+**Descripcion:** Genera boletos individuales para una compra existente.
+
+**Body:**
+
+```json
+{
+  "compra_id": 1,
+  "detallesCompra": [
+    {
+      "evento_tipo_id": 1,
+      "cantidad": 2
+    }
+  ]
+}
+```
+
+**Exito (201):**
+
+```json
+{
+  "message": "Boletos generados correctamente.",
+  "total_generados": 2,
+  "boletos": [
+    {
+      "id": 1,
+      "compra_id": 1,
+      "evento_tipo_id": 1,
+      "codigo_qr_individual": "uuid",
+      "estado": "Válido"
+    }
+  ]
+}
+```
+
+**Errores comunes:**
+
+- `400` payload invalido.
+- `400` tipo de evento inexistente.
+- `404` compra no encontrada.
+- `500` error interno.
+
+---
+
+### POST /api/boletos/validar-acceso
+
+**Descripcion:** Valida un boleto por codigo QR individual y lo marca como usado.
+
+**Body:**
+
+```json
+{
+  "codigo_qr_individual": "uuid-del-boleto"
+}
+```
+
+**Exito (200):**
+
+```json
+{
+  "message": "Acceso permitido. Boleto validado correctamente.",
+  "boleto": {
+    "id": 1,
+    "estado": "Usado",
+    "tipo_entrada": {
+      "id": 1,
+      "nombre": "General"
+    },
+    "evento": {
+      "id": 1,
+      "nombre": "Tech Conference 2026"
+    }
+  }
+}
+```
+
+**Errores comunes:**
+
+- `400` codigo qr invalido.
+- `400` entrada invalida o ya utilizada.
+- `404` boleto no encontrado.
+- `500` error interno.
+
+---
+
+### PATCH /api/boletos/:boleto_id/cancelar
+
+**Descripcion:** Cancela un boleto si aun no ha sido usado.
+
+**Exito (200):**
+
+```json
+{
+  "message": "Boleto cancelado correctamente.",
+  "boleto": {
+    "id": 1,
+    "estado": "Cancelado"
+  }
+}
+```
+
+**Errores comunes:**
+
+- `400` boleto_id invalido.
+- `400` no se puede cancelar un boleto usado.
+- `404` boleto no encontrado.
+- `500` error interno.
+
+---
+
+## Compras
+
+---
+
+### POST /api/compras
+
+**Descripcion:** Procesa una compra completa (valida usuario, evento activo, stock), crea la compra, genera boletos y actualiza `cantidad_vendida` por tipo de entrada.
+
+**Body:**
+
+```json
+{
+  "usuario_id": "user_3ANBwCd4QgPpjjBNyZxxaOS4aqo",
+  "evento_id": 1,
+  "detallesCompra": [
+    {
+      "tipo_entrada_id": 1,
+      "cantidad": 2
+    },
+    {
+      "tipo_entrada_id": 2,
+      "cantidad": 1
+    }
+  ]
+}
+```
+
+**Exito (201):**
+
+```json
+{
+  "message": "Compra procesada exitosamente.",
+  "compra": {
+    "id": 15,
+    "usuario_id": "user_3ANBwCd4QgPpjjBNyZxxaOS4aqo",
+    "fecha_compra": "2026-04-01T20:15:00.000Z",
+    "monto_total": "420000.00",
+    "codigo_qr_general": "e7ec6c03-df01-4558-a5bf-7f74a91c4f14",
+    "Usuario": {
+      "id": "user_3ANBwCd4QgPpjjBNyZxxaOS4aqo",
+      "email": "correo@ejemplo.com",
+      "nombre": "Usuario Demo"
+    },
+    "Boletos": []
+  }
+}
+```
+
+**Errores comunes:**
+
+- `400` payload invalido (`usuario_id`, `evento_id`, `detallesCompra`).
+- `400` evento no disponible o tipo no disponible para el evento.
+- `404` usuario no encontrado.
+- `409` stock insuficiente.
+- `500` error interno.
+
+---
+
+### GET /api/compras/usuario/:usuario_id/historial
+
+**Descripcion:** Retorna el historial de compras de un usuario, ordenado por `fecha_compra` descendente.
+
+**Exito (200):**
+
+```json
+[
+  {
+    "id": 15,
+    "fecha_compra": "2026-04-01T20:15:00.000Z",
+    "monto_total": "420000.00",
+    "codigo_qr_general": "e7ec6c03-df01-4558-a5bf-7f74a91c4f14"
+  }
+]
+```
+
+**Errores comunes:**
+
+- `400` `usuario_id` invalido.
+- `404` usuario no encontrado.
+- `500` error interno.
+
+---
+
+### GET /api/compras/:compra_id
+
+**Descripcion:** Obtiene el detalle de una compra con usuario, boletos, tipo de entrada y datos del evento.
+
+**Exito (200):**
+
+```json
+{
+  "id": 15,
+  "usuario_id": "user_3ANBwCd4QgPpjjBNyZxxaOS4aqo",
+  "fecha_compra": "2026-04-01T20:15:00.000Z",
+  "monto_total": "420000.00",
+  "codigo_qr_general": "e7ec6c03-df01-4558-a5bf-7f74a91c4f14",
+  "Usuario": {
+    "id": "user_3ANBwCd4QgPpjjBNyZxxaOS4aqo",
+    "email": "correo@ejemplo.com",
+    "nombre": "Usuario Demo"
+  },
+  "Boletos": [
+    {
+      "id": 101,
+      "codigo_qr_individual": "11f0a537-93c6-4205-b070-46cebf9e6540",
+      "estado": "Válido"
+    }
+  ]
+}
+```
+
+**Errores comunes:**
+
+- `400` `compra_id` invalido.
+- `404` compra no encontrada.
+- `500` error interno.
+
+---
+
+## Reportes
+
+---
+
+### GET /api/reportes/metricas-generales
+
+**Descripcion:** Retorna metricas globales del sistema para dashboards administrativos.
+
+**Nota:** `eventos_pasados` corresponde actualmente a eventos con `estado = 'Completado'`.
+
+**Exito (200):**
+
+```json
+{
+  "total_ganancias": 1520000,
+  "eventos_activos": 12,
+  "eventos_pasados": 8,
+  "usuarios_registrados": 340
+}
+```
+
+**Errores comunes:**
+
+- `500` error interno.
+
+---
+
+### GET /api/reportes/ventas/evento/:evento_id
+
+**Descripcion:** Obtiene el reporte de ventas por tipo de entrada para un evento especifico.
+
+**Parametros de ruta:**
+
+- `evento_id` (entero positivo)
+
+**Exito (200):**
+
+```json
+{
+  "evento": {
+    "id": 1,
+    "nombre": "Tech Conference 2026"
+  },
+  "ventas": [
+    {
+      "id": 4,
+      "tipo_entrada_id": 1,
+      "cantidad_vendida": 35,
+      "capacidad_total": 100,
+      "ganancia": "420000.00",
+      "TipoEntrada": {
+        "id": 1,
+        "nombre": "General"
+      }
+    },
+    {
+      "id": 5,
+      "tipo_entrada_id": 2,
+      "cantidad_vendida": 10,
+      "capacidad_total": 30,
+      "ganancia": "500000.00",
+      "TipoEntrada": {
+        "id": 2,
+        "nombre": "VIP"
+      }
+    }
+  ]
+}
+```
+
+**Errores comunes:**
+
+- `400` `evento_id` invalido.
+- `404` evento no encontrado.
+- `500` error interno.
+
+---
+
+## Webhooks
+
+---
+
+### POST /api/webhook/clerk
+
+**Descripcion:** Recibe eventos de Clerk (`user.created`, `user.updated`, `user.deleted`) y sincroniza usuarios en BD.
+
+**Headers requeridos:**
+
+- `svix-id`
+- `svix-timestamp`
+- `svix-signature`
+
+**Exito (200):**
+
+```json
+{
+  "success": true
+}
+```
+
+**Errores comunes:**
+
+- `400` faltan headers Svix.
+- `400` firma de webhook invalida.
+- `500` falta secreto o error interno procesando evento.
 
 ---
 
 ## Manejo Global de Errores
 
-El backend cuenta con un middleware global de manejo de errores (`errorHandler`). Cualquier error no controlado en los controladores o servicios que sea capturado por el `asyncHandler` será procesado por este middleware.
+El backend usa un middleware global (`errorHandler`) para capturar excepciones no manejadas.
 
-### Comportamiento:
+### Comportamiento
 
-- Si el error tiene un `statusCode` definido (errores personalizados como 404, 409, etc.), se retorna ese código con el mensaje del error.
-- Si el error **no** tiene un `statusCode`, se retorna un **Status 500** con un mensaje genérico.
+- Si el error tiene `statusCode`, responde con ese codigo y mensaje.
+- Si no tiene `statusCode`, responde `500` con mensaje generico.
 
-### Formato estándar de error:
+### Formato estandar de error
 
 ```json
 {
@@ -1047,11 +1005,11 @@ El backend cuenta con un middleware global de manejo de errores (`errorHandler`)
 }
 ```
 
-### Tabla resumen de códigos de error:
+### Tabla resumen de codigos de error
 
-| Código | Significado | Cuándo ocurre |
-|---|---|---|
-| 400 | Bad Request | Datos de entrada faltantes, inválidos o inconsistentes (ej. clave foránea inexistente). |
-| 404 | Not Found | El recurso solicitado (evento, etc.) no existe. |
-| 409 | Conflict | Se intenta crear un registro que viola una restricción de unicidad (ej. categoría o departamento duplicado). |
-| 500 | Internal Server Error | Error inesperado del servidor. El mensaje real se oculta al cliente por seguridad. |
+| Codigo | Significado           | Cuando ocurre                                                   |
+| ------ | --------------------- | --------------------------------------------------------------- |
+| 400    | Bad Request           | Datos faltantes, invalidos o reglas de negocio incumplidas.     |
+| 404    | Not Found             | Recurso solicitado inexistente.                                 |
+| 409    | Conflict              | Conflictos de negocio (por ejemplo, capacidad menor a vendida). |
+| 500    | Internal Server Error | Error inesperado del servidor.                                  |

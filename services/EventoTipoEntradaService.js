@@ -9,6 +9,12 @@ class EventoTipoEntradaService {
             throw error;
         }
 
+        if (!Array.isArray(configuracion)) {
+            const error = new Error("La configuración debe ser un arreglo.");
+            error.code = 'CONFIGURACION_INVALIDA';
+            throw error;
+        }
+
         if (!Array.isArray(configuracion) || configuracion.length === 0) {
             const error = new Error("La configuración debe ser un arreglo con al menos un tipo de entrada.");
             error.code = 'CONFIGURACION_INVALIDA';
@@ -24,15 +30,17 @@ class EventoTipoEntradaService {
             throw error;
         }
 
-        const tiposExistentes = await TipoEntrada.findAll({
-            where: { id: [...tipoIdsUnicos] },
-            attributes: ['id']
-        });
+        if (tipoIdsUnicos.size > 0) {
+            const tiposExistentes = await TipoEntrada.findAll({
+                where: { id: [...tipoIdsUnicos] },
+                attributes: ['id']
+            });
 
-        if (tiposExistentes.length !== tipoIdsUnicos.size) {
-            const error = new Error("Uno o más tipos de entrada no existen.");
-            error.code = 'TIPO_ENTRADA_NO_EXISTE';
-            throw error;
+            if (tiposExistentes.length !== tipoIdsUnicos.size) {
+                const error = new Error("Uno o más tipos de entrada no existen.");
+                error.code = 'TIPO_ENTRADA_NO_EXISTE';
+                throw error;
+            }
         }
 
         const transaction = await sequelize.transaction();
@@ -46,6 +54,19 @@ class EventoTipoEntradaService {
             const actualesPorTipo = new Map(actuales.map(item => [item.tipo_entrada_id, item]));
             const configuracionPorTipo = new Map(configuracion.map(item => [Number(item.tipo_entrada_id), item]));
 
+            for (const [tipoId, itemActual] of actualesPorTipo.entries()) {
+                if (!configuracionPorTipo.has(tipoId)) {
+                    // Validamos por seguridad en el backend que no tenga ventas antes de borrar
+                    if (itemActual.cantidad_vendida > 0) {
+                        const error = new Error("No se puede eliminar un tipo de entrada que ya tiene ventas.");
+                        error.code = 'ENTRADA_CON_VENTAS';
+                        throw error;
+                    }
+                    // Si no tiene ventas y ya no está en la configuración, la eliminamos
+                    await itemActual.destroy({ transaction });
+                }
+            }
+            
             for (const [tipoId, nuevoItem] of configuracionPorTipo.entries()) {
                 const itemActual = actualesPorTipo.get(tipoId);
                 const nuevaCapacidad = Number(nuevoItem.capacidad_total);

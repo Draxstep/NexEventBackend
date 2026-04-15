@@ -3,9 +3,9 @@ name: Backend CI - Node.js
 # Se ejecuta al integrar código a la rama 'main' (Pull Requests y Merges/Pushes)
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   # TAREA 1: Instalación y Validación (Build)
@@ -20,12 +20,15 @@ jobs:
       - name: Configurar Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: '22.x' # Usa la versión mayor 22 para compatibilidad
-          cache: 'npm' # Acelera futuras ejecuciones guardando las dependencias
+          node-version: "22.x" # Usa la versión mayor 22 para compatibilidad
+          cache: "npm" # Acelera futuras ejecuciones guardando las dependencias
 
       - name: Instalar dependencias limpias
         # npm ci es mejor para pipelines que npm install porque respeta estrictamente el package-lock.json
-        run: npm ci 
+        run: npm ci
+
+      - name: Ejecutar lint
+        run: npm run lint
 
   # TAREA 2: Pruebas (Test)
   test:
@@ -40,8 +43,8 @@ jobs:
       - name: Configurar Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: '22.x'
-          cache: 'npm'
+          node-version: "22.x"
+          cache: "npm"
 
       - name: Instalar dependencias limpias
         run: npm ci
