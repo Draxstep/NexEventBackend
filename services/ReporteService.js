@@ -1,4 +1,5 @@
 import { Compra, Evento, EventoTipoEntrada, TipoEntrada, Usuario, sequelize, EventoInteres, Categoria, Ciudad} from "../models/Asociaciones.js";
+import { fn, col } from 'sequelize';
 
 class ReporteService {
     async obtenerReporteVentasPorEvento(evento_id) {
@@ -85,7 +86,7 @@ class ReporteService {
             ]
         });
     }
-    
+
     async getTopMostSoldEvents() {
         const eventos = await Evento.findAll({
             where: { estado: 'Activo' },
