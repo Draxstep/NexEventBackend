@@ -84,6 +84,8 @@ class ReporteService {
                 ['fecha', 'ASC'] 
             ]
         });
+    }
+    
     async getTopMostSoldEvents() {
         const eventos = await Evento.findAll({
             where: { estado: 'Activo' },

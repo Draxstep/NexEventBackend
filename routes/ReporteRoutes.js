@@ -2,7 +2,7 @@ import express from "express";
 import {
     obtenerMetricasGenerales,
     obtenerReporteVentasPorEvento,
-    getEventsByPopularity
+    getEventsByPopularity,
     getTopMostSoldEvents
 } from "../controllers/ReporteController.js";
 import { validarEventoIdReporte } from "../middlewares/ReporteValidator.js";
