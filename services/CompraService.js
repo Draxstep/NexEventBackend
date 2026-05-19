@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from "uuid";
 import { Boleto, Compra, Evento, EventoTipoEntrada, TipoEntrada, Usuario, sequelize } from "../models/Asociaciones.js";
 import boletoService from "./BoletoService.js";
 import pasarelaPagoService from "./PasarelaPagoService.js";
+import logger from "../utils/logger.js";
 
 class CompraService {
     async procesarCompra(usuario_id, evento_id, detallesCompra, pago) {
@@ -87,7 +88,7 @@ class CompraService {
             }
 
             const idempotencia = uuidv4();
-            console.log('[Compra] Procesando pago', {
+            logger.info("purchase.payment.start", {
                 usuario_id,
                 evento_id,
                 monto: Number(montoTotal.toFixed(2)),
@@ -103,7 +104,7 @@ class CompraService {
                 monto: Number(montoTotal.toFixed(2))
             });
 
-            console.log('[Compra] Pago aprobado', {
+            logger.info("purchase.payment.approved", {
                 transaccion_id: pagoProcesado?.transaccion_id,
                 id_idempotencia: idempotencia
             });
@@ -131,7 +132,7 @@ class CompraService {
                 pago: pagoProcesado
             };
         } catch (error) {
-            console.log('[Compra] Error al procesar compra', {
+            logger.error("purchase.error", {
                 code: error.code,
                 statusCode: error.statusCode,
                 message: error.message

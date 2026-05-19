@@ -1,3 +1,5 @@
+import logger from "../utils/logger.js";
+
 class PasarelaPagoService {
     constructor() {
         this.baseUrl = process.env.PAGO_SERVICE_URL ?? 'http://localhost:8002';
@@ -13,7 +15,7 @@ class PasarelaPagoService {
 
     async procesarPago(datosPago) {
         try {
-            console.log('[Pago] Request', {
+            logger.info("payment.request", {
                 url: `${this.baseUrl}/procesar-pago`,
                 payload: this.redactarPago(datosPago)
             });
@@ -28,7 +30,7 @@ class PasarelaPagoService {
 
             const payload = await response.json().catch(() => null);
 
-            console.log('[Pago] Response', {
+            logger.info("payment.response", {
                 status: response.status,
                 payload
             });
@@ -49,7 +51,7 @@ class PasarelaPagoService {
 
             return payload;
         } catch (error) {
-            console.log('[Pago] Error', {
+            logger.error("payment.error", {
                 code: error.code,
                 statusCode: error.statusCode,
                 message: error.message
