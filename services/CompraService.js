@@ -1,9 +1,10 @@
 import { v4 as uuidv4 } from "uuid";
 import { Boleto, Compra, Evento, EventoTipoEntrada, TipoEntrada, Usuario, sequelize } from "../models/Asociaciones.js";
 import boletoService from "./BoletoService.js";
+import pasarelaPagoService from "./PasarelaPagoService.js";
 
 class CompraService {
-    async procesarCompra(usuario_id, evento_id, detallesCompra) {
+    async procesarCompra(usuario_id, evento_id, detallesCompra, pago) {
         const usuario = await Usuario.findByPk(usuario_id, { attributes: ['id'] });
         if (!usuario) {
             const error = new Error("Usuario no encontrado.");
@@ -85,6 +86,11 @@ class CompraService {
                 });
             }
 
+            const pagoProcesado = await pasarelaPagoService.procesarPago({
+                ...pago,
+                monto: Number(montoTotal.toFixed(2))
+            });
+
             const compra = await Compra.create({
                 usuario_id,
                 monto_total: montoTotal.toFixed(2),
@@ -102,7 +108,11 @@ class CompraService {
             }
 
             await transaction.commit();
-            return await this.obtenerDetalleCompra(compra.id);
+            const detalleCompra = await this.obtenerDetalleCompra(compra.id);
+            return {
+                compra: detalleCompra,
+                pago: pagoProcesado
+            };
         } catch (error) {
             await transaction.rollback();
             throw error;
