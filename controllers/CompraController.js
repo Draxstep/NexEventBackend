@@ -14,6 +14,18 @@ const mapearErrorDominio = (error, res) => {
         return res.status(400).json({ error: error.message });
     }
 
+    if (error.code === 'PAGO_INVALIDO') {
+        return res.status(400).json({ error: error.message });
+    }
+
+    if (error.code === 'PAGO_RECHAZADO') {
+        return res.status(402).json({ error: error.message });
+    }
+
+    if (error.code === 'PAGO_SERVICIO_NO_DISPONIBLE') {
+        return res.status(503).json({ error: error.message });
+    }
+
     if (error.code === 'STOCK_INSUFICIENTE') {
         return res.status(409).json({ error: error.message });
     }
@@ -22,13 +34,14 @@ const mapearErrorDominio = (error, res) => {
 };
 
 export const procesarCompra = asyncHandler(async (req, res) => {
-    const { usuario_id, evento_id, detallesCompra } = req.body;
+    const { usuario_id, evento_id, detallesCompra, pago } = req.body;
 
     try {
-        const compra = await compraService.procesarCompra(usuario_id, Number(evento_id), detallesCompra);
+        const resultado = await compraService.procesarCompra(usuario_id, Number(evento_id), detallesCompra, pago);
         res.status(201).json({
             message: "Compra procesada exitosamente.",
-            compra
+            compra: resultado.compra,
+            pago: resultado.pago
         });
     } catch (error) {
         const response = mapearErrorDominio(error, res);

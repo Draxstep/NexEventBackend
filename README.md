@@ -66,6 +66,9 @@ Sigue los siguientes pasos para poner en marcha el proyecto:
    CLERK_PUBLISHABLE_KEY=pk_test_...
    CLERK_SECRET_KEY=sk_test_...
    WEBHOOK_SECRET=whsec_...
+
+   # Pasarela de pago externa
+   PAGO_SERVICE_URL=http://localhost:8002
    ```
 
 4. **Ejecutar el servidor:**

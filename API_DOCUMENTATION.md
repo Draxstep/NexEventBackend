@@ -767,7 +767,7 @@ Valores permitidos para `estado`: `Activo`, `Completado`, `Cancelado`.
 
 ### POST /api/compras
 
-**Descripcion:** Procesa una compra completa (valida usuario, evento activo, stock), crea la compra, genera boletos y actualiza `cantidad_vendida` por tipo de entrada.
+**Descripcion:** Procesa una compra completa (valida usuario, evento activo, stock), cobra el pago en la pasarela externa, crea la compra, genera boletos y actualiza `cantidad_vendida` por tipo de entrada.
 
 **Body:**
 
@@ -784,7 +784,15 @@ Valores permitidos para `estado`: `Activo`, `Completado`, `Cancelado`.
       "tipo_entrada_id": 2,
       "cantidad": 1
     }
-  ]
+  ],
+  "pago": {
+    "id_idempotencia": "idem-001",
+    "empresa_id": "empresa_123",
+    "franquicia": "Visa",
+    "numero_tarjeta": "4111111111111111",
+    "cvc": "123",
+    "fecha_expiracion": "12/28"
+  }
 }
 ```
 
@@ -805,15 +813,22 @@ Valores permitidos para `estado`: `Activo`, `Completado`, `Cancelado`.
       "nombre": "Usuario Demo"
     },
     "Boletos": []
+  },
+  "pago": {
+    "status": "Aprobado",
+    "transaccion_id": "pb_id",
+    "mensaje": "Pago aprobado"
   }
 }
 ```
 
 **Errores comunes:**
 
-- `400` payload invalido (`usuario_id`, `evento_id`, `detallesCompra`).
+- `400` payload invalido (`usuario_id`, `evento_id`, `detallesCompra`, `pago`).
 - `400` evento no disponible o tipo no disponible para el evento.
 - `404` usuario no encontrado.
+- `402` pago rechazado por la pasarela.
+- `503` pasarela de pago no disponible.
 - `409` stock insuficiente.
 - `500` error interno.
 
