@@ -86,9 +86,26 @@ class CompraService {
                 });
             }
 
+            const idempotencia = uuidv4();
+            console.log('[Compra] Procesando pago', {
+                usuario_id,
+                evento_id,
+                monto: Number(montoTotal.toFixed(2)),
+                franquicia: pago?.franquicia,
+                tarjeta: pago?.numero_tarjeta ? `****${pago.numero_tarjeta.slice(-4)}` : undefined,
+                id_idempotencia: idempotencia
+            });
+
             const pagoProcesado = await pasarelaPagoService.procesarPago({
                 ...pago,
+                empresa_id: 'i8b3bh3q8441tko',
+                id_idempotencia: idempotencia,
                 monto: Number(montoTotal.toFixed(2))
+            });
+
+            console.log('[Compra] Pago aprobado', {
+                transaccion_id: pagoProcesado?.transaccion_id,
+                id_idempotencia: idempotencia
             });
 
             const compra = await Compra.create({
@@ -114,6 +131,11 @@ class CompraService {
                 pago: pagoProcesado
             };
         } catch (error) {
+            console.log('[Compra] Error al procesar compra', {
+                code: error.code,
+                statusCode: error.statusCode,
+                message: error.message
+            });
             await transaction.rollback();
             throw error;
         }
