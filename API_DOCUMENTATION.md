@@ -786,8 +786,6 @@ Valores permitidos para `estado`: `Activo`, `Completado`, `Cancelado`.
     }
   ],
   "pago": {
-    "id_idempotencia": "idem-001",
-    "empresa_id": "empresa_123",
     "franquicia": "Visa",
     "numero_tarjeta": "4111111111111111",
     "cvc": "123",

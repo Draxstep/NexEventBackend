@@ -1,10 +1,25 @@
+import logger from "../utils/logger.js";
+
 class PasarelaPagoService {
     constructor() {
         this.baseUrl = process.env.PAGO_SERVICE_URL ?? 'http://localhost:8002';
     }
 
+    redactarPago(datosPago) {
+        return {
+            ...datosPago,
+            numero_tarjeta: datosPago?.numero_tarjeta ? `****${datosPago.numero_tarjeta.slice(-4)}` : undefined,
+            cvc: datosPago?.cvc ? '***' : undefined
+        };
+    }
+
     async procesarPago(datosPago) {
         try {
+            logger.info("payment.request", {
+                url: `${this.baseUrl}/procesar-pago`,
+                payload: this.redactarPago(datosPago)
+            });
+
             const response = await fetch(`${this.baseUrl}/procesar-pago`, {
                 method: 'POST',
                 headers: {
@@ -14,6 +29,11 @@ class PasarelaPagoService {
             });
 
             const payload = await response.json().catch(() => null);
+
+            logger.info("payment.response", {
+                status: response.status,
+                payload
+            });
 
             if (!response.ok) {
                 const error = new Error(payload?.detail || payload?.mensaje || 'No fue posible procesar el pago.');
@@ -31,6 +51,12 @@ class PasarelaPagoService {
 
             return payload;
         } catch (error) {
+            logger.error("payment.error", {
+                code: error.code,
+                statusCode: error.statusCode,
+                message: error.message
+            });
+
             if (error.code) {
                 throw error;
             }

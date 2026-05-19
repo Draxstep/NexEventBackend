@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import app from "./app.js";
 import sequelize from "./config/database.js"; 
+import logger from "./utils/logger.js";
 
 dotenv.config();
 
@@ -9,14 +10,14 @@ const PORT = process.env.PORT || 3000;
 const iniciarServidor = async () => {
     try {
         await sequelize.authenticate();
-        console.log("✅ Conectado a la base de datos.");
+        logger.info("app.database.connected");
 
         app.listen(PORT, () => {
-            console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
+            logger.info("app.server.started", { port: PORT });
         });
 
     } catch (error) {
-        console.error("❌ Error crítico al arrancar la aplicación:", error);
+        logger.error("app.server.failed", { message: error.message, stack: error.stack });
         process.exit(1); 
     }
 };

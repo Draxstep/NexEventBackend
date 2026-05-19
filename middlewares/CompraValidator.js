@@ -2,8 +2,6 @@ export const validarProcesarCompra = (req, res, next) => {
     const { usuario_id, evento_id, detallesCompra } = req.body;
     const pago = req.body.pago ?? req.body;
     const {
-        id_idempotencia,
-        empresa_id,
         franquicia,
         numero_tarjeta,
         cvc,
@@ -29,20 +27,6 @@ export const validarProcesarCompra = (req, res, next) => {
         return res.status(400).json({
             error: "Datos inválidos.",
             details: "El campo 'detallesCompra' debe ser un arreglo con al menos un elemento."
-        });
-    }
-
-    if (!id_idempotencia || typeof id_idempotencia !== 'string' || id_idempotencia.trim().length === 0) {
-        return res.status(400).json({
-            error: "Datos inválidos.",
-            details: "El campo 'id_idempotencia' es obligatorio y debe ser texto válido."
-        });
-    }
-
-    if (!empresa_id || typeof empresa_id !== 'string' || empresa_id.trim().length === 0) {
-        return res.status(400).json({
-            error: "Datos inválidos.",
-            details: "El campo 'empresa_id' es obligatorio y debe ser texto válido."
         });
     }
 
@@ -96,8 +80,6 @@ export const validarProcesarCompra = (req, res, next) => {
     req.body.usuario_id = usuario_id.trim();
     req.body.evento_id = eventoId;
     req.body.pago = {
-        id_idempotencia: id_idempotencia.trim(),
-        empresa_id: empresa_id.trim(),
         franquicia: franquicia.trim(),
         numero_tarjeta: numero_tarjeta.replace(/\s+/g, ''),
         cvc: cvc.trim(),
