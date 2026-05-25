@@ -1,7 +1,9 @@
 import dotenv from "dotenv";
+import http from "http";
 import app from "./app.js";
 import sequelize from "./config/database.js"; 
 import logger from "./utils/logger.js";
+import { initSocket } from "./services/SocketService.js";
 
 dotenv.config();
 
@@ -12,7 +14,10 @@ const iniciarServidor = async () => {
         await sequelize.authenticate();
         logger.info("app.database.connected");
 
-        app.listen(PORT, () => {
+        const server = http.createServer(app);
+        initSocket(server);
+
+        server.listen(PORT, () => {
             logger.info("app.server.started", { port: PORT });
         });
 
