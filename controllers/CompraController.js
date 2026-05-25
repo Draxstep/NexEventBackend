@@ -1,5 +1,6 @@
 import compraService from "../services/CompraService.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import { getSocket } from "../services/SocketService.js";
 
 const mapearErrorDominio = (error, res) => {
     if (error.code === 'USUARIO_NO_ENCONTRADO' || error.code === 'COMPRA_NO_ENCONTRADA') {
@@ -80,4 +81,22 @@ export const obtenerHistorialComprasUsuario = asyncHandler(async (req, res) => {
         }
         throw error;
     }
+});
+
+export const simularInicioPago = asyncHandler(async (req, res) => {
+    const io = getSocket();
+
+    io.emit("payment.status", {
+        status: "PROCESSING",
+        message: "Enviando la petición a la pasarela..."
+    });
+
+    setTimeout(() => {
+        io.emit("payment.status", {
+            status: "GATEWAY_RECEIVED",
+            message: "Respuesta recibida, analizando..."
+        });
+    }, 1500);
+
+    res.status(202).json({ message: "Simulación de pago iniciada." });
 });
