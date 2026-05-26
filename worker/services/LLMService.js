@@ -10,7 +10,31 @@ class LLMService {
       throw new Error("Falta LLM_API_KEY en el worker.");
     }
 
-    const prompt = `Eres un asistente amable. Repite el evento recibido de forma clara. Evento: ${JSON.stringify(eventData)}`;
+    const { type, details } = eventData ?? {};
+
+    let systemPrompt;
+    let userPrompt;
+
+    if (type === "ERROR") {
+      systemPrompt = "Eres un agente de retencion empatico, breve y persuasivo.";
+      userPrompt = "Crea un mensaje simple para el usuario, sin mencionar temas tecnicos ni codigos. "
+        + "Explica que no se pudo completar y ofrece una alternativa clara para continuar (por ejemplo, probar otra tarjeta o cambiar el metodo de pago). "
+        + "Objetivo: que el usuario no abandone. Mantenerlo en 1 o 2 frases.";
+    } else if (type === "TIMEOUT") {
+      systemPrompt = "Eres un agente de recuperacion de ventas, breve y directo.";
+      userPrompt = "Crea un mensaje simple, sin tecnicismos. "
+        + "DEBES incluir exactamente esta premisa: 'Tu lugar esta reservado, intenta nuevamente en unos minutos'. "
+        + "Agrega una frase breve de apoyo para que el usuario continue.";
+    } else if (type === "SUCCESS") {
+      systemPrompt = "Eres un agente de confirmacion entusiasta, cercano y claro.";
+      userPrompt = "Confirma que la compra fue exitosa y celebra al usuario. "
+        + "Debe sonar como compra finalizada, no como invitacion a comprar. "
+        + "Incluye una recomendacion breve para el ingreso o preparacion (por ejemplo, llegar con tiempo o tener el codigo listo). "
+        + "Mensaje corto (1 o 2 frases), sin listas ni tecnicismos. "
+        + `Detalles: ${JSON.stringify(details ?? {})}`;
+    } else {
+      throw new Error("Tipo de evento no soportado para el LLM.");
+    }
 
     const response = await fetch(`${baseUrl}/chat/completions`, {
       method: "POST",
@@ -21,8 +45,8 @@ class LLMService {
       body: JSON.stringify({
         model,
         messages: [
-          { role: "system", content: "Eres un asistente que responde en espanol." },
-          { role: "user", content: prompt }
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt }
         ],
         temperature: 0.2
       })
