@@ -1,0 +1,14 @@
+{
+  "name": "nexevent-worker",
+  "version": "1.0.0",
+  "description": "Worker para consumir eventos y ejecutar el LLM",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "amqplib": "^0.10.5",
+    "dotenv": "^17.3.1"
+  }
+}
