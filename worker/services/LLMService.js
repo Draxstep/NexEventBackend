@@ -10,10 +10,10 @@ class LLMService {
       throw new Error("Falta LLM_API_KEY en el worker.");
     }
 
-    const { type, errorCode, details } = eventData ?? {};
+    const { type, details } = eventData ?? {};
 
-    let systemPrompt = "Eres un asistente que responde en espanol.";
-    let userPrompt = "";
+    let systemPrompt;
+    let userPrompt;
 
     if (type === "ERROR") {
       systemPrompt = "Eres un agente de retencion empatico, breve y persuasivo.";
