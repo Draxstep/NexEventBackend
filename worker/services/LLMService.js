@@ -10,7 +10,7 @@ class LLMService {
       throw new Error("Falta LLM_API_KEY en el worker.");
     }
 
-    const { type, details } = eventData ?? {};
+    const { type, errorCode, details } = eventData ?? {};
 
     let systemPrompt;
     let userPrompt;
@@ -18,23 +18,33 @@ class LLMService {
     if (type === "ERROR") {
       systemPrompt = "Eres un agente de retencion empatico, breve y persuasivo.";
       userPrompt = "Crea un mensaje simple para el usuario, sin mencionar temas tecnicos ni codigos. "
-        + "Explica que no se pudo completar y ofrece una alternativa clara para continuar (por ejemplo, probar otra tarjeta o cambiar el metodo de pago). "
-        + "Objetivo: que el usuario no abandone. Mantenerlo en 1 o 2 frases.";
+        + "Explica que no se pudo completar el pago y ofrece una alternativa clara para continuar. "
+        + "Incluye el motivo. "
+        + "Objetivo: que el usuario no abandone. Mantenerlo en 1 o 2 frases. "
+        + `Contexto para inspirarte: ${JSON.stringify({ motivo: details?.motivo, errorCode })}`;
     } else if (type === "TIMEOUT") {
       systemPrompt = "Eres un agente de recuperacion de ventas, breve y directo.";
       userPrompt = "Crea un mensaje simple, sin tecnicismos. "
-        + "DEBES incluir exactamente esta premisa: 'Tu lugar esta reservado, intenta nuevamente en unos minutos'. "
+        + "DEBES incluir exactamente esta premisa: 'tu lugar esta reservado por 5 minutos mas, intenta con este enlace alternativo'. "
         + "Agrega una frase breve de apoyo para que el usuario continue.";
     } else if (type === "SUCCESS") {
       systemPrompt = "Eres un agente de confirmacion entusiasta, cercano y claro.";
       userPrompt = "Confirma que la compra fue exitosa y celebra al usuario. "
         + "Debe sonar como compra finalizada, no como invitacion a comprar. "
-        + "Incluye una recomendacion breve para el ingreso o preparacion (por ejemplo, llegar con tiempo o tener el codigo listo). "
+        + "Incluye una recomendacion breve para el ingreso o preparacion basada en el contexto del evento. "
         + "Mensaje corto (1 o 2 frases), sin listas ni tecnicismos. "
-        + `Detalles: ${JSON.stringify(details ?? {})}`;
+        + `Detalles del evento: ${JSON.stringify(details ?? {})}`;
     } else {
       throw new Error("Tipo de evento no soportado para el LLM.");
     }
+
+    logger.info("worker.llm.request", {
+      type,
+      details,
+      errorCode,
+      systemPrompt,
+      userPrompt
+    });
 
     const response = await fetch(`${baseUrl}/chat/completions`, {
       method: "POST",

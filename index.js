@@ -4,6 +4,7 @@ import app from "./app.js";
 import sequelize from "./config/database.js"; 
 import logger from "./utils/logger.js";
 import { initSocket } from "./services/SocketService.js";
+import messageBroker from "./services/MessageBrokerService.js";
 
 dotenv.config();
 
@@ -15,7 +16,17 @@ const iniciarServidor = async () => {
         logger.info("app.database.connected");
 
         const server = http.createServer(app);
-        initSocket(server);
+        const io = initSocket(server);
+
+        const resultQueue = process.env.BROKER_RESULT_QUEUE ?? "ai_results";
+        messageBroker.consumeEvent(resultQueue, async (payload) => {
+            io.emit("payment.status", {
+                status: "AI_RESOLVED",
+                message: payload?.resolution ?? ""
+            });
+        }).catch((error) => {
+            logger.error("broker.consume.start.error", { message: error.message, queue: resultQueue });
+        });
 
         server.listen(PORT, () => {
             logger.info("app.server.started", { port: PORT });
