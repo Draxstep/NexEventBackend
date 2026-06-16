@@ -8,7 +8,7 @@ export const crearEvento = asyncHandler(async (req, res) => {
     if (req.file){
         const urlImage = await ImgDbService.subirImagen(req.file.buffer);
         datosNuevos.imagen_url = urlImage;
-    }
+    
 
     const nuevoEvento = await eventoService.crear(datosNuevos);
     res.status(201).json({
